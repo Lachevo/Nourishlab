@@ -5,7 +5,6 @@ import {
     AppBar,
     Box,
     CssBaseline,
-    Divider,
     Drawer,
     IconButton,
     List,
@@ -14,9 +13,9 @@ import {
     ListItemIcon,
     ListItemText,
     Toolbar,
-    Typography,
     alpha,
     useTheme,
+    Avatar,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import logo from '../assets/logo.jpg';
@@ -26,13 +25,30 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 
-const drawerWidth = 240;
+import api from '../services/api';
+
+const drawerWidth = 260; // Slightly wider for a more spacious feel
 
 const Layout: React.FC = () => {
     const { logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [mobileOpen, setMobileOpen] = React.useState(false);
+    const [userInitial, setUserInitial] = React.useState('U');
+
+    React.useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const response = await api.get('/profile/');
+                if (response.data && response.data.username) {
+                    setUserInitial(response.data.username[0].toUpperCase());
+                }
+            } catch (error) {
+                console.error('Failed to fetch user profile for layout', error);
+            }
+        };
+        fetchProfile();
+    }, []);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -48,54 +64,118 @@ const Layout: React.FC = () => {
     ];
 
     const drawer = (
-        <div>
-            <Toolbar sx={{ py: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Toolbar sx={{ py: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <Box
                     component="img"
                     src={logo}
                     alt="NourishLab Logo"
                     sx={{
-                        height: 60,
+                        height: 120, // Increased from 70
                         width: 'auto',
-                        mb: 1,
-                        filter: theme.palette.mode === 'dark' ? 'invert(1) brightness(2)' : 'none'
+                        mb: 2,
+                        filter: theme.palette.mode === 'dark' ? 'invert(1) brightness(2)' : 'none',
+                        transition: 'transform 0.3s ease',
+                        '&:hover': { transform: 'scale(1.05)' }
                     }}
                 />
             </Toolbar>
-            <Divider sx={{ opacity: 0.6 }} />
-            <List>
-                {menuItems.map((item) => (
-                    <ListItem key={item.text} disablePadding>
+            <Box sx={{ px: 2, flexGrow: 1 }}>
+                <List>
+                    {menuItems.map((item) => {
+                        const isActive = location.pathname === item.path;
+                        return (
+                            <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+                                <ListItemButton
+                                    selected={isActive}
+                                    onClick={() => navigate(item.path)}
+                                    sx={{
+                                        borderRadius: 2,
+                                        py: 1.5,
+                                        px: 2,
+                                        transition: 'all 0.2s',
+                                        bgcolor: isActive ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+                                        color: isActive ? 'primary.main' : 'text.secondary',
+                                        '&:hover': {
+                                            bgcolor: isActive ? alpha(theme.palette.primary.main, 0.15) : alpha(theme.palette.action.hover, 0.5),
+                                            transform: 'translateX(4px)',
+                                        },
+                                        '&.Mui-selected': {
+                                            bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                            '&:hover': {
+                                                bgcolor: alpha(theme.palette.primary.main, 0.15),
+                                            },
+                                        }
+                                    }}
+                                >
+                                    <ListItemIcon sx={{
+                                        minWidth: 40,
+                                        color: isActive ? 'primary.main' : 'text.secondary',
+                                        transition: 'color 0.2s'
+                                    }}>
+                                        {item.icon}
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={item.text}
+                                        primaryTypographyProps={{
+                                            fontWeight: isActive ? 700 : 500,
+                                            fontSize: '0.95rem'
+                                        }}
+                                    />
+                                    {isActive && (
+                                        <Box sx={{
+                                            width: 4,
+                                            height: 4,
+                                            borderRadius: '50%',
+                                            bgcolor: 'primary.main',
+                                            ml: 1
+                                        }} />
+                                    )}
+                                </ListItemButton>
+                            </ListItem>
+                        );
+                    })}
+                </List>
+            </Box>
+            <Box sx={{ p: 2 }}>
+                <List>
+                    <ListItem disablePadding>
                         <ListItemButton
-                            selected={location.pathname === item.path}
-                            onClick={() => navigate(item.path)}
+                            onClick={() => { logout(); navigate('/login'); }}
+                            sx={{
+                                borderRadius: 2,
+                                color: 'text.secondary',
+                                '&:hover': {
+                                    bgcolor: alpha(theme.palette.error.main, 0.05),
+                                    color: 'error.main',
+                                    '& .MuiListItemIcon-root': { color: 'error.main' }
+                                }
+                            }}
                         >
-                            <ListItemIcon>{item.icon}</ListItemIcon>
-                            <ListItemText primary={item.text} />
+                            <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary', transition: 'color 0.2s' }}>
+                                <LogoutIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 600 }} />
                         </ListItemButton>
                     </ListItem>
-                ))}
-            </List>
-            <Divider />
-            <List>
-                <ListItem disablePadding>
-                    <ListItemButton onClick={() => { logout(); navigate('/login'); }}>
-                        <ListItemIcon><LogoutIcon /></ListItemIcon>
-                        <ListItemText primary="Logout" />
-                    </ListItemButton>
-                </ListItem>
-            </List>
-        </div>
+                </List>
+            </Box>
+        </Box>
     );
 
     return (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}>
             <CssBaseline />
             <AppBar
                 position="fixed"
                 sx={{
                     width: { sm: `calc(100% - ${drawerWidth}px)` },
                     ml: { sm: `${drawerWidth}px` },
+                    bgcolor: alpha(theme.palette.background.default, 0.8),
+                    backdropFilter: 'blur(12px)',
+                    boxShadow: 'none',
+                    borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+                    color: 'text.primary',
                 }}
             >
                 <Toolbar>
@@ -109,21 +189,15 @@ const Layout: React.FC = () => {
                         <MenuIcon />
                     </IconButton>
                     <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-                        <Box
-                            component="img"
-                            src={logo}
-                            alt="Logo"
-                            sx={{
-                                height: 32,
-                                mr: 1.5,
-                                display: { xs: 'block', sm: 'none' },
-                                filter: theme.palette.mode === 'dark' ? 'invert(1) brightness(2)' : 'none'
-                            }}
-                        />
-                        <Typography variant="h6" noWrap component="div" fontWeight={700}>
-                            {menuItems.find(item => item.path === location.pathname)?.text || 'NourishLab'}
-                        </Typography>
+                        {/* Dynamic title removed to avoid duplication with page content */}
                     </Box>
+
+                    {/* Placeholder for User Profile Menu/Avatar if needed */}
+                    <IconButton size="small" sx={{ ml: 2 }}>
+                        <Avatar sx={{ width: 32, height: 32, bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main', fontWeight: 700, fontSize: '0.875rem' }}>
+                            {userInitial}
+                        </Avatar>
+                    </IconButton>
                 </Toolbar>
             </AppBar>
             <Box
@@ -140,7 +214,12 @@ const Layout: React.FC = () => {
                     }}
                     sx={{
                         display: { xs: 'block', sm: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                        '& .MuiDrawer-paper': {
+                            boxSizing: 'border-box',
+                            width: drawerWidth,
+                            border: 'none',
+                            bgcolor: 'background.paper'
+                        },
                     }}
                 >
                     {drawer}
@@ -152,8 +231,9 @@ const Layout: React.FC = () => {
                         '& .MuiDrawer-paper': {
                             boxSizing: 'border-box',
                             width: drawerWidth,
-                            borderRight: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                            boxShadow: '4px 0 24px rgba(0,0,0,0.02)'
+                            borderRight: 'none',
+                            boxShadow: '4px 0 32px rgba(0,0,0,0.015)',
+                            bgcolor: 'background.paper'
                         },
                     }}
                     open
@@ -163,7 +243,7 @@ const Layout: React.FC = () => {
             </Box>
             <Box
                 component="main"
-                sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+                sx={{ flexGrow: 1, p: { xs: 2, sm: 4 }, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
             >
                 <Toolbar />
                 <Outlet />

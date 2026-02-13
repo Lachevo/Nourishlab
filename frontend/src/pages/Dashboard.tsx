@@ -21,7 +21,7 @@ import { Line } from 'react-chartjs-2';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import EditIcon from '@mui/icons-material/Edit';
+import FlagIcon from '@mui/icons-material/Flag';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -153,7 +153,16 @@ const Dashboard: React.FC = () => {
             <Grid container spacing={4}>
                 {/* Profile Summary */}
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
+                    <Card sx={{
+                        height: '100%',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        '&:hover': {
+                            transform: 'translateY(-4px)',
+                            boxShadow: '0 12px 24px -4px rgba(0, 0, 0, 0.12)'
+                        }
+                    }}>
                         <Box sx={{
                             position: 'absolute',
                             top: -20,
@@ -168,12 +177,12 @@ const Dashboard: React.FC = () => {
                                 <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.1), color: 'success.main', mr: 1.5 }}>
                                     <TrendingUpIcon />
                                 </Avatar>
-                                <Typography color="textSecondary" variant="subtitle2" fontWeight={600} textTransform="uppercase">
+                                <Typography color="textSecondary" variant="subtitle2" fontWeight={700} textTransform="uppercase" letterSpacing="0.05em">
                                     Current Stats
                                 </Typography>
                             </Box>
 
-                            <Typography variant="h3" fontWeight={800} color="primary" sx={{ my: 1 }}>
+                            <Typography variant="h3" fontWeight={800} color="primary" sx={{ my: 1, letterSpacing: '-0.02em' }}>
                                 {user?.profile?.weight ? `${user.profile.weight} kg` : 'N/A'}
                             </Typography>
                             <Typography variant="body2" color="textSecondary" fontWeight={500}>
@@ -182,8 +191,8 @@ const Dashboard: React.FC = () => {
 
                             <Divider sx={{ my: 2.5, opacity: 0.6 }} />
 
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <EditIcon sx={{ fontSize: 16, mr: 0.8, color: 'text.secondary' }} />
+                            <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: alpha(theme.palette.background.default, 0.5), p: 1, borderRadius: 2 }}>
+                                <FlagIcon sx={{ fontSize: 18, mr: 1, color: 'text.secondary' }} />
                                 <Typography variant="body2" fontWeight={500}>
                                     Goal: <Box component="span" sx={{ color: 'text.primary', fontWeight: 700 }}>{user?.profile?.goals || 'Not set'}</Box>
                                 </Typography>
@@ -193,9 +202,15 @@ const Dashboard: React.FC = () => {
                             <Button
                                 fullWidth
                                 variant="outlined"
-                                color="inherit"
+                                color="primary"
                                 onClick={() => navigate('/profile')}
-                                sx={{ borderRadius: 2, borderColor: alpha(theme.palette.divider, 0.1) }}
+                                sx={{
+                                    borderRadius: 2,
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    borderWidth: '1.5px',
+                                    '&:hover': { borderWidth: '1.5px' }
+                                }}
                             >
                                 Update Profile
                             </Button>

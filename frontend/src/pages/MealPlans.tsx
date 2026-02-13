@@ -23,6 +23,9 @@ import ImageIcon from '@mui/icons-material/Image';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import LocalDiningIcon from '@mui/icons-material/LocalDining';
+import DateRangeIcon from '@mui/icons-material/DateRange';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import logo from '../assets/logo.jpg';
@@ -91,9 +94,14 @@ const MealPlans: React.FC = () => {
     return (
         <Box sx={{ py: 4 }}>
             <Box sx={{ mb: 4 }}>
-                <Typography variant="h4" fontWeight={800} sx={{ mb: 1 }}>
-                    My Meal Plans
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main', mr: 2 }}>
+                        <MenuBookIcon />
+                    </Avatar>
+                    <Typography variant="h4" fontWeight={800}>
+                        My Meal Plans
+                    </Typography>
+                </Box>
                 <Typography variant="body1" color="textSecondary">
                     View and download your personalized nutrition guides.
                 </Typography>
@@ -166,14 +174,20 @@ const MealPlans: React.FC = () => {
                                                 alt="NourishLab Logo"
                                                 sx={{ height: 48, mb: 1 }}
                                             />
-                                            <Typography variant="overline" color="textSecondary" fontWeight={800} sx={{ letterSpacing: '0.1em', display: 'block' }}>
-                                                Nutrition Strategy
-                                            </Typography>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                                <LocalDiningIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                                                <Typography variant="overline" color="textSecondary" fontWeight={800} sx={{ letterSpacing: '0.1em', display: 'block' }}>
+                                                    Nutrition Strategy
+                                                </Typography>
+                                            </Box>
                                         </Box>
                                         <Box sx={{ textAlign: 'right' }}>
-                                            <Typography variant="body2" fontWeight={700}>
-                                                Valid: {plan.start_date} to {plan.end_date}
-                                            </Typography>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', mb: 0.5 }}>
+                                                <DateRangeIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.primary' }} />
+                                                <Typography variant="body2" fontWeight={700}>
+                                                    Valid: {plan.start_date} to {plan.end_date}
+                                                </Typography>
+                                            </Box>
                                             <Typography variant="caption" color="textSecondary">
                                                 Generated for your specific goals
                                             </Typography>

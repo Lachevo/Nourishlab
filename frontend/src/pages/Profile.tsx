@@ -10,7 +10,14 @@ import {
     Snackbar,
     Stack,
     Box,
+    InputAdornment,
 } from '@mui/material';
+import CakeIcon from '@mui/icons-material/Cake';
+import StraightenIcon from '@mui/icons-material/Straighten';
+import MonitorWeightIcon from '@mui/icons-material/MonitorWeight';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import type { Profile as ProfileType } from '../types';
 
 const Profile: React.FC = () => {
@@ -108,6 +115,13 @@ const Profile: React.FC = () => {
                                 type="number"
                                 value={profile.age || ''}
                                 onChange={handleChange}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <CakeIcon color="action" />
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                             <TextField
                                 sx={{ flex: '1 1 200px' }}
@@ -116,6 +130,13 @@ const Profile: React.FC = () => {
                                 type="number"
                                 value={profile.height || ''}
                                 onChange={handleChange}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <StraightenIcon color="action" />
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                             <TextField
                                 sx={{ flex: '1 1 200px' }}
@@ -124,6 +145,13 @@ const Profile: React.FC = () => {
                                 type="number"
                                 value={profile.weight || ''}
                                 onChange={handleChange}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <MonitorWeightIcon color="action" />
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
                         </Box>
                         <TextField
@@ -134,6 +162,13 @@ const Profile: React.FC = () => {
                             name="goals"
                             value={profile.goals || ''}
                             onChange={handleChange}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <EmojiEventsIcon color="action" sx={{ mt: 1 }} />
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
                         <TextField
                             fullWidth
@@ -144,6 +179,13 @@ const Profile: React.FC = () => {
                             value={profile.dietary_prefs || ''}
                             onChange={handleChange}
                             helperText="Vegetarian, Vegan, Keto, etc."
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <RestaurantMenuIcon color="action" sx={{ mt: 1 }} />
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
                         <TextField
                             fullWidth
@@ -153,6 +195,13 @@ const Profile: React.FC = () => {
                             name="allergies"
                             value={profile.allergies || ''}
                             onChange={handleChange}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <MedicalServicesIcon color="action" sx={{ mt: 1 }} />
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
                         <Button
                             type="submit"

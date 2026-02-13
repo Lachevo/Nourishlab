@@ -4,37 +4,50 @@ const theme = createTheme({
     palette: {
         mode: 'light',
         primary: {
-            main: '#4f46e5', // Indigo 600
-            light: '#818cf8',
-            dark: '#3730a3',
+            main: '#2BA275', // Logo Emerald Green
+            light: '#5cd6a5',
+            dark: '#1e7a56',
+            contrastText: '#ffffff',
         },
         secondary: {
-            main: '#ec4899', // Pink 500
+            main: '#132E26', // Logo Dark Green
+            light: '#3a564c',
+            dark: '#000000',
         },
         background: {
-            default: '#f8fafc', // Slate 50
+            default: '#f8fcfb', // Very light mint/slate
             paper: '#ffffff',
         },
         success: {
-            main: '#10b981',
+            main: '#2BA275', // Matching primary for consistency
         },
     },
     typography: {
         fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+        h1: { fontFamily: '"Outfit", sans-serif', fontWeight: 700 },
+        h2: { fontFamily: '"Outfit", sans-serif', fontWeight: 700 },
+        h3: { fontFamily: '"Outfit", sans-serif', fontWeight: 700 },
         h4: {
+            fontFamily: '"Outfit", sans-serif',
             fontWeight: 700,
             letterSpacing: '-0.02em',
+            color: '#132E26', // Use secondary for headings
         },
         h5: {
+            fontFamily: '"Outfit", sans-serif',
             fontWeight: 600,
+            color: '#132E26',
         },
         h6: {
+            fontFamily: '"Outfit", sans-serif',
             fontWeight: 600,
+            color: '#132E26',
         },
         subtitle1: {
             fontWeight: 500,
         },
         button: {
+            fontFamily: '"Outfit", sans-serif',
             textTransform: 'none',
             fontWeight: 600,
         },
@@ -55,9 +68,9 @@ const theme = createTheme({
                     },
                 },
                 containedPrimary: {
-                    background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                    background: 'linear-gradient(135deg, #2BA275 0%, #1e7a56 100%)',
                     '&:hover': {
-                        background: 'linear-gradient(135deg, #4338ca 0%, #6d28d9 100%)',
+                        background: 'linear-gradient(135deg, #238f65 0%, #176345 100%)',
                     },
                 },
             },
