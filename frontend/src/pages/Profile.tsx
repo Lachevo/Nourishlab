@@ -5,10 +5,11 @@ import {
     Typography,
     TextField,
     Button,
-    Grid,
     Paper,
     Alert,
     Snackbar,
+    Stack,
+    Box,
 } from '@mui/material';
 import type { Profile as ProfileType } from '../types';
 
@@ -98,82 +99,70 @@ const Profile: React.FC = () => {
                 )}
 
                 <form onSubmit={handleSubmit}>
-                    <Grid container spacing={3}>
-                        <Grid item xs={12} sm={4}>
+                    <Stack spacing={3}>
+                        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                             <TextField
-                                fullWidth
+                                sx={{ flex: '1 1 200px' }}
                                 label="Age"
                                 name="age"
                                 type="number"
                                 value={profile.age || ''}
                                 onChange={handleChange}
                             />
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
                             <TextField
-                                fullWidth
+                                sx={{ flex: '1 1 200px' }}
                                 label="Height (cm)"
                                 name="height"
                                 type="number"
                                 value={profile.height || ''}
                                 onChange={handleChange}
                             />
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
                             <TextField
-                                fullWidth
+                                sx={{ flex: '1 1 200px' }}
                                 label="Weight (kg)"
                                 name="weight"
                                 type="number"
                                 value={profile.weight || ''}
                                 onChange={handleChange}
                             />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                multiline
-                                rows={3}
-                                label="Fitness Goals"
-                                name="goals"
-                                value={profile.goals || ''}
-                                onChange={handleChange}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                multiline
-                                rows={2}
-                                label="Dietary Preferences"
-                                name="dietary_prefs"
-                                value={profile.dietary_prefs || ''}
-                                onChange={handleChange}
-                                helperText="Vegetarian, Vegan, Keto, etc."
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                multiline
-                                rows={2}
-                                label="Allergies"
-                                name="allergies"
-                                value={profile.allergies || ''}
-                                onChange={handleChange}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                size="large"
-                                disabled={saving}
-                            >
-                                {saving ? 'Saving...' : 'Save Changes'}
-                            </Button>
-                        </Grid>
-                    </Grid>
+                        </Box>
+                        <TextField
+                            fullWidth
+                            multiline
+                            rows={3}
+                            label="Fitness Goals"
+                            name="goals"
+                            value={profile.goals || ''}
+                            onChange={handleChange}
+                        />
+                        <TextField
+                            fullWidth
+                            multiline
+                            rows={2}
+                            label="Dietary Preferences"
+                            name="dietary_prefs"
+                            value={profile.dietary_prefs || ''}
+                            onChange={handleChange}
+                            helperText="Vegetarian, Vegan, Keto, etc."
+                        />
+                        <TextField
+                            fullWidth
+                            multiline
+                            rows={2}
+                            label="Allergies"
+                            name="allergies"
+                            value={profile.allergies || ''}
+                            onChange={handleChange}
+                        />
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            size="large"
+                            disabled={saving}
+                        >
+                            {saving ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                    </Stack>
                 </form>
             </Paper>
 

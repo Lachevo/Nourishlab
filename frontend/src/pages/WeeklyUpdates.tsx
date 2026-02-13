@@ -16,30 +16,17 @@ import {
     TableRow,
     Box,
     Alert,
+    alpha,
+    useTheme,
+    Avatar,
 } from '@mui/material';
 import { Line } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-} from 'chart.js';
-
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-);
+import HistoryIcon from '@mui/icons-material/History';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 
 const WeeklyUpdates: React.FC = () => {
+    const theme = useTheme();
     const [updates, setUpdates] = useState<WeeklyUpdate[]>([]);
     const [currentWeight, setCurrentWeight] = useState<number | ''>('');
     const [notes, setNotes] = useState('');
@@ -91,29 +78,48 @@ const WeeklyUpdates: React.FC = () => {
         labels: updates.slice().reverse().map(u => u.date),
         datasets: [
             {
-                label: 'Weight Progress',
+                label: 'Weight (kg)',
                 data: updates.slice().reverse().map(u => u.current_weight),
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1,
+                borderColor: theme.palette.primary.main,
+                backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
             },
         ],
     };
 
-    if (loading) return <Typography>Loading Updates...</Typography>;
+    if (loading) return (
+        <Container sx={{ mt: 8, textAlign: 'center' }}>
+            <Typography variant="h6" color="textSecondary">Loading your progress history...</Typography>
+        </Container>
+    );
 
     return (
-        <Container maxWidth="lg">
-            <Typography variant="h4" gutterBottom sx={{ mt: 4 }}>
-                Weekly Updates
-            </Typography>
+        <Box sx={{ py: 4 }}>
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h4" fontWeight={800} sx={{ mb: 1 }}>
+                    Weekly Updates
+                </Typography>
+                <Typography variant="body1" color="textSecondary">
+                    Track your journey and stay committed to your goals.
+                </Typography>
+            </Box>
 
             <Grid container spacing={4}>
                 {/* Update Form */}
-                <Grid item xs={12} md={4}>
-                    <Paper sx={{ p: 3 }}>
-                        <Typography variant="h6" gutterBottom>Log New Update</Typography>
-                        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-                        {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper sx={{ p: 4, border: '1px solid rgba(226, 232, 240, 0.8)', borderRadius: 4 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                            <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main', mr: 1.5 }}>
+                                <AddCircleOutlineIcon />
+                            </Avatar>
+                            <Typography variant="h6" fontWeight={700}>Log Update</Typography>
+                        </Box>
+
+                        {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
+                        {success && <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>{success}</Alert>}
 
                         <form onSubmit={handleSubmit}>
                             <TextField
@@ -124,61 +130,99 @@ const WeeklyUpdates: React.FC = () => {
                                 onChange={(e) => setCurrentWeight(Number(e.target.value))}
                                 required
                                 margin="normal"
+                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                             />
                             <TextField
                                 fullWidth
-                                label="Notes"
+                                label="Notes / Thoughts"
                                 multiline
                                 rows={4}
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
                                 margin="normal"
+                                placeholder="How are you feeling this week?"
+                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                             />
                             <Button
                                 type="submit"
                                 variant="contained"
+                                color="primary"
                                 fullWidth
                                 disabled={submitting}
-                                sx={{ mt: 2 }}
+                                size="large"
+                                sx={{ mt: 3, py: 1.5 }}
                             >
-                                {submitting ? 'Submitting...' : 'Log Update'}
+                                {submitting ? 'Saving...' : 'Log Weekly Progress'}
                             </Button>
                         </form>
                     </Paper>
                 </Grid>
 
                 {/* Chart and History */}
-                <Grid item xs={12} md={8}>
-                    <Paper sx={{ p: 3, mb: 4 }}>
-                        <Typography variant="h6" gutterBottom>Progress Chart</Typography>
-                        <Box sx={{ height: 300 }}>
-                            <Line data={chartData} options={{ maintainAspectRatio: false }} />
+                <Grid size={{ xs: 12, md: 8 }}>
+                    <Paper sx={{ p: 4, mb: 4, border: '1px solid rgba(226, 232, 240, 0.8)', borderRadius: 4 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                            <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.1), color: 'success.main', mr: 1.5 }}>
+                                <ShowChartIcon />
+                            </Avatar>
+                            <Typography variant="h6" fontWeight={700}>Progress Chart</Typography>
+                        </Box>
+                        <Box sx={{ height: 320 }}>
+                            <Line
+                                data={chartData}
+                                options={{
+                                    maintainAspectRatio: false,
+                                    interaction: { intersect: false, mode: 'index' },
+                                    scales: {
+                                        y: { grid: { color: alpha(theme.palette.divider, 0.05) } },
+                                        x: { grid: { display: false } }
+                                    },
+                                    plugins: { legend: { display: false } }
+                                }}
+                            />
                         </Box>
                     </Paper>
 
-                    <TableContainer component={Paper}>
+                    <TableContainer component={Paper} sx={{ border: '1px solid rgba(226, 232, 240, 0.8)', borderRadius: 4, overflow: 'hidden' }}>
+                        <Box sx={{ p: 3, display: 'flex', alignItems: 'center', borderBottom: `1px solid ${theme.palette.divider}` }}>
+                            <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.1), color: 'secondary.main', mr: 1.5, width: 32, height: 32 }}>
+                                <HistoryIcon sx={{ fontSize: 20 }} />
+                            </Avatar>
+                            <Typography variant="subtitle1" fontWeight={700}>Update History</Typography>
+                        </Box>
                         <Table>
-                            <TableHead>
+                            <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
                                 <TableRow>
-                                    <TableCell>Date</TableCell>
-                                    <TableCell>Weight (kg)</TableCell>
-                                    <TableCell>Notes</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Date</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Weight (kg)</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Notes</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {updates.map((update) => (
-                                    <TableRow key={update.id}>
-                                        <TableCell>{new Date(update.date).toLocaleDateString()}</TableCell>
-                                        <TableCell>{update.current_weight}</TableCell>
-                                        <TableCell>{update.notes}</TableCell>
+                                    <TableRow key={update.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                        <TableCell sx={{ fontWeight: 600 }}>{new Date(update.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</TableCell>
+                                        <TableCell>
+                                            <Typography variant="body2" fontWeight={800} color="primary.main">
+                                                {update.current_weight} kg
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ color: 'text.secondary' }}>{update.notes || '—'}</TableCell>
                                     </TableRow>
                                 ))}
+                                {updates.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={3} align="center" sx={{ py: 4 }}>
+                                            <Typography variant="body2" color="textSecondary">No history available yet.</Typography>
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </TableContainer>
                 </Grid>
             </Grid>
-        </Container>
+        </Box>
     );
 };
 

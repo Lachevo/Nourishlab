@@ -15,8 +15,11 @@ import {
     ListItemText,
     Toolbar,
     Typography,
+    alpha,
+    useTheme,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import logo from '../assets/logo.jpg';
 import PersonIcon from '@mui/icons-material/Person';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -35,6 +38,8 @@ const Layout: React.FC = () => {
         setMobileOpen(!mobileOpen);
     };
 
+    const theme = useTheme();
+
     const menuItems = [
         { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
         { text: 'Profile', icon: <PersonIcon />, path: '/profile' },
@@ -44,12 +49,20 @@ const Layout: React.FC = () => {
 
     const drawer = (
         <div>
-            <Toolbar>
-                <Typography variant="h6" noWrap component="div">
-                    NourishLab
-                </Typography>
+            <Toolbar sx={{ py: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Box
+                    component="img"
+                    src={logo}
+                    alt="NourishLab Logo"
+                    sx={{
+                        height: 60,
+                        width: 'auto',
+                        mb: 1,
+                        filter: theme.palette.mode === 'dark' ? 'invert(1) brightness(2)' : 'none'
+                    }}
+                />
             </Toolbar>
-            <Divider />
+            <Divider sx={{ opacity: 0.6 }} />
             <List>
                 {menuItems.map((item) => (
                     <ListItem key={item.text} disablePadding>
@@ -95,9 +108,22 @@ const Layout: React.FC = () => {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography variant="h6" noWrap component="div">
-                        {menuItems.find(item => item.path === location.pathname)?.text || 'NourishLab'}
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+                        <Box
+                            component="img"
+                            src={logo}
+                            alt="Logo"
+                            sx={{
+                                height: 32,
+                                mr: 1.5,
+                                display: { xs: 'block', sm: 'none' },
+                                filter: theme.palette.mode === 'dark' ? 'invert(1) brightness(2)' : 'none'
+                            }}
+                        />
+                        <Typography variant="h6" noWrap component="div" fontWeight={700}>
+                            {menuItems.find(item => item.path === location.pathname)?.text || 'NourishLab'}
+                        </Typography>
+                    </Box>
                 </Toolbar>
             </AppBar>
             <Box
@@ -123,7 +149,12 @@ const Layout: React.FC = () => {
                     variant="permanent"
                     sx={{
                         display: { xs: 'none', sm: 'block' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                        '& .MuiDrawer-paper': {
+                            boxSizing: 'border-box',
+                            width: drawerWidth,
+                            borderRight: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                            boxShadow: '4px 0 24px rgba(0,0,0,0.02)'
+                        },
                     }}
                     open
                 >

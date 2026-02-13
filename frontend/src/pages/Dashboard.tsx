@@ -10,9 +10,18 @@ import {
     CardContent,
     CardActions,
     Divider,
+    Container,
+    Avatar,
+    useTheme,
+    alpha,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import SocialFeed from '../components/SocialFeed';
 import { Line } from 'react-chartjs-2';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import EditIcon from '@mui/icons-material/Edit';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -23,7 +32,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import type { Profile, MealPlan, WeeklyUpdate } from '../types';
+import type { User, MealPlan } from '../types';
 
 ChartJS.register(
     CategoryScale,
@@ -37,29 +46,28 @@ ChartJS.register(
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
-    const [profile, setProfile] = useState<Profile | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [latestMealPlan, setLatestMealPlan] = useState<MealPlan | null>(null);
-    const [updates, setUpdates] = useState<WeeklyUpdate[]>([]);
+    const [weightHistory, setWeightHistory] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [profileRes, mealPlansRes, updatesRes] = await Promise.all([
+                const [profileRes, mealPlansRes, historyRes] = await Promise.all([
                     api.get('/profile/'),
-                    api.get('/meal-plans/?limit=1'), // Assuming backend supports pagination or ordering
-                    api.get('/weekly-updates/'),
+                    api.get('/meal-plans/?limit=1'),
+                    api.get('/weight-history/'),
                 ]);
 
-                setProfile(profileRes.data.profile || profileRes.data); // Adjust based on serializer structure
-                // Meal plans might be list or paginated result
+                setUser(profileRes.data);
+
                 const plans = Array.isArray(mealPlansRes.data) ? mealPlansRes.data : mealPlansRes.data.results;
                 if (plans && plans.length > 0) {
                     setLatestMealPlan(plans[0]);
                 }
 
-                const updatesData = Array.isArray(updatesRes.data) ? updatesRes.data : updatesRes.data.results;
-                setUpdates(updatesData || []);
+                setWeightHistory(historyRes.data || []);
 
             } catch (error) {
                 console.error('Error fetching dashboard data', error);
@@ -71,102 +79,285 @@ const Dashboard: React.FC = () => {
         fetchData();
     }, []);
 
+    const theme = useTheme();
+
     const chartData = {
-        labels: updates.slice().reverse().map(u => u.date),
+        labels: weightHistory.map(u => u.date),
         datasets: [
             {
-                label: 'Weight Progress',
-                data: updates.slice().reverse().map(u => u.current_weight),
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1,
+                label: 'Weight (kg)',
+                data: weightHistory.map(u => u.current_weight),
+                borderColor: theme.palette.primary.main,
+                backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: theme.palette.primary.main,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: theme.palette.primary.main,
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 2,
             },
         ],
     };
 
-    if (loading) return <Typography>Loading Dashboard...</Typography>;
+    if (loading) return (
+        <Container sx={{ mt: 8, textAlign: 'center' }}>
+            <Typography variant="h6" color="textSecondary">Transforming your experience...</Typography>
+        </Container>
+    );
 
     return (
-        <Box>
-            <Typography variant="h4" gutterBottom>
-                Welcome back!
-            </Typography>
+        <Box sx={{ py: 4 }}>
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box>
+                    <Typography variant="h4" fontWeight={800} sx={{ color: 'text.primary', mb: 0.5 }}>
+                        Dashboard
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                        Welcome back! Here's your progress overview.
+                    </Typography>
+                </Box>
+                <Avatar
+                    sx={{
+                        width: 48,
+                        height: 48,
+                        bgcolor: 'primary.main',
+                        fontSize: '1.25rem',
+                        fontWeight: 600,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    {user?.username?.[0]?.toUpperCase() || 'U'}
+                </Avatar>
+            </Box>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={4}>
                 {/* Profile Summary */}
-                <Grid item xs={12} md={4}>
-                    <Card sx={{ height: '100%' }}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
+                        <Box sx={{
+                            position: 'absolute',
+                            top: -20,
+                            right: -20,
+                            opacity: 0.05,
+                            transform: 'rotate(-15deg)'
+                        }}>
+                            <TrendingUpIcon sx={{ fontSize: 120 }} />
+                        </Box>
                         <CardContent>
-                            <Typography color="textSecondary" gutterBottom>
-                                Current Stats
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.1), color: 'success.main', mr: 1.5 }}>
+                                    <TrendingUpIcon />
+                                </Avatar>
+                                <Typography color="textSecondary" variant="subtitle2" fontWeight={600} textTransform="uppercase">
+                                    Current Stats
+                                </Typography>
+                            </Box>
+
+                            <Typography variant="h3" fontWeight={800} color="primary" sx={{ my: 1 }}>
+                                {user?.profile?.weight ? `${user.profile.weight} kg` : 'N/A'}
                             </Typography>
-                            <Typography variant="h5" component="div">
-                                {profile?.weight ? `${profile.weight} kg` : 'N/A'}
+                            <Typography variant="body2" color="textSecondary" fontWeight={500}>
+                                Starting Weight
                             </Typography>
-                            <Typography color="textSecondary">
-                                Current Weight
-                            </Typography>
-                            <Divider sx={{ my: 1.5 }} />
-                            <Typography variant="body2">
-                                Goal: {profile?.goals || 'Not set'}
-                            </Typography>
+
+                            <Divider sx={{ my: 2.5, opacity: 0.6 }} />
+
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <EditIcon sx={{ fontSize: 16, mr: 0.8, color: 'text.secondary' }} />
+                                <Typography variant="body2" fontWeight={500}>
+                                    Goal: <Box component="span" sx={{ color: 'text.primary', fontWeight: 700 }}>{user?.profile?.goals || 'Not set'}</Box>
+                                </Typography>
+                            </Box>
                         </CardContent>
-                        <CardActions>
-                            <Button size="small" onClick={() => navigate('/profile')}>Edit Profile</Button>
+                        <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
+                            <Button
+                                fullWidth
+                                variant="outlined"
+                                color="inherit"
+                                onClick={() => navigate('/profile')}
+                                sx={{ borderRadius: 2, borderColor: alpha(theme.palette.divider, 0.1) }}
+                            >
+                                Update Profile
+                            </Button>
                         </CardActions>
                     </Card>
                 </Grid>
 
                 {/* Meal Plan Summary */}
-                <Grid item xs={12} md={4}>
-                    <Card sx={{ height: '100%' }}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
+                        <Box sx={{
+                            position: 'absolute',
+                            top: -20,
+                            right: -20,
+                            opacity: 0.05,
+                            transform: 'rotate(-15deg)'
+                        }}>
+                            <RestaurantMenuIcon sx={{ fontSize: 120 }} />
+                        </Box>
                         <CardContent>
-                            <Typography color="textSecondary" gutterBottom>
-                                Current Meal Plan
-                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.1), color: 'secondary.main', mr: 1.5 }}>
+                                    <RestaurantMenuIcon />
+                                </Avatar>
+                                <Typography color="textSecondary" variant="subtitle2" fontWeight={600} textTransform="uppercase">
+                                    Meal Plan
+                                </Typography>
+                            </Box>
+
                             {latestMealPlan ? (
                                 <>
-                                    <Typography variant="h6">
-                                        {latestMealPlan.start_date} - {latestMealPlan.end_date}
+                                    <Typography variant="h5" fontWeight={700} sx={{ mt: 1, mb: 0.5 }}>
+                                        Active Plan
                                     </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        Check your plan for today's meals.
+                                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                                        {latestMealPlan.start_date} — {latestMealPlan.end_date}
+                                    </Typography>
+                                    <Typography variant="body2" fontWeight={500} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), p: 1.5, borderRadius: 2 }}>
+                                        Don't forget to check your meals for today!
                                     </Typography>
                                 </>
                             ) : (
-                                <Typography variant="body1">
-                                    No active meal plan found.
-                                </Typography>
+                                <Box sx={{ py: 3, textAlign: 'center' }}>
+                                    <Typography variant="body2" color="textSecondary">
+                                        No active meal plan found.
+                                    </Typography>
+                                </Box>
                             )}
                         </CardContent>
-                        <CardActions>
-                            <Button size="small" onClick={() => navigate('/meal-plans')}>View Plans</Button>
+                        <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                onClick={() => navigate('/meal-plans')}
+                            >
+                                View My Plans
+                            </Button>
                         </CardActions>
                     </Card>
                 </Grid>
 
                 {/* Quick Action */}
-                <Grid item xs={12} md={4}>
-                    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                        <CardContent>
-                            <Button variant="contained" color="primary" onClick={() => navigate('/weekly-updates')}>
-                                Log Weekly Update
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Card sx={{
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`,
+                        border: `1px dashed ${alpha(theme.palette.primary.main, 0.3)}`,
+                        boxShadow: 'none',
+                        '&:hover': {
+                            transform: 'translateY(-4px)',
+                            borderStyle: 'solid',
+                        }
+                    }}>
+                        <CardContent sx={{ textAlign: 'center' }}>
+                            <Avatar sx={{ width: 56, height: 56, bgcolor: 'primary.main', mb: 2, mx: 'auto', boxShadow: '0 8px 16px rgba(79, 70, 229, 0.2)' }}>
+                                <AssessmentIcon />
+                            </Avatar>
+                            <Typography variant="h6" fontWeight={700} gutterBottom>
+                                Track Progress
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+                                Log your weekly weight and notes to see your progress journey.
+                            </Typography>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                size="large"
+                                fullWidth
+                                onClick={() => navigate('/weekly-updates')}
+                            >
+                                New Weekly Update
                             </Button>
                         </CardContent>
                     </Card>
                 </Grid>
 
                 {/* Weight Chart */}
-                <Grid item xs={12}>
-                    <Paper sx={{ p: 2 }}>
-                        <Typography variant="h6" gutterBottom>Weight History</Typography>
-                        {updates.length > 0 ? (
-                            <Box sx={{ height: 300 }}>
-                                <Line data={chartData} options={{ maintainAspectRatio: false }} />
+                <Grid size={{ xs: 12, md: 8 }}>
+                    <Paper sx={{
+                        p: 3,
+                        height: '100%',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                        border: '1px solid rgba(226, 232, 240, 0.8)',
+                    }}>
+                        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="h6" fontWeight={700}>Weight Progress Journey</Typography>
+                            <Typography variant="caption" color="textSecondary" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), px: 1.5, py: 0.5, borderRadius: 10, fontWeight: 600 }}>
+                                {weightHistory.length} ENTRIES
+                            </Typography>
+                        </Box>
+
+                        {weightHistory.length > 0 ? (
+                            <Box sx={{ height: 380 }}>
+                                <Line
+                                    data={chartData}
+                                    options={{
+                                        maintainAspectRatio: false,
+                                        interaction: {
+                                            intersect: false,
+                                            mode: 'index',
+                                        },
+                                        scales: {
+                                            y: {
+                                                beginAtZero: false,
+                                                grid: {
+                                                    color: alpha(theme.palette.divider, 0.05),
+                                                },
+                                                ticks: {
+                                                    font: {
+                                                        weight: 600,
+                                                    }
+                                                }
+                                            },
+                                            x: {
+                                                grid: {
+                                                    display: false,
+                                                },
+                                                ticks: {
+                                                    font: {
+                                                        weight: 600,
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        plugins: {
+                                            legend: {
+                                                display: false
+                                            },
+                                            tooltip: {
+                                                padding: 12,
+                                                backgroundColor: theme.palette.background.paper,
+                                                titleColor: theme.palette.text.primary,
+                                                bodyColor: theme.palette.text.secondary,
+                                                borderColor: theme.palette.divider,
+                                                borderWidth: 1,
+                                                displayColors: false,
+                                                titleFont: { weight: 700, size: 14 },
+                                                bodyFont: { size: 13 },
+                                            }
+                                        }
+                                    }}
+                                />
                             </Box>
                         ) : (
-                            <Typography>No updates logged yet.</Typography>
+                            <Box sx={{ height: 380, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px dashed ${theme.palette.divider}`, borderRadius: 3 }}>
+                                <Typography color="textSecondary" fontWeight={500}>No weight entries found. Start by logging your first update!</Typography>
+                            </Box>
                         )}
                     </Paper>
+                </Grid>
+
+                {/* Social Feed */}
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <SocialFeed />
                 </Grid>
             </Grid>
         </Box>

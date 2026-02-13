@@ -9,6 +9,7 @@ import Profile from './pages/Profile';
 import MealPlans from './pages/MealPlans';
 import WeeklyUpdates from './pages/WeeklyUpdates';
 import PendingApproval from './pages/PendingApproval';
+import CompleteProfile from './pages/CompleteProfile';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/register" element={<Register />} />
 
           <Route element={<ProtectedRoute />}>
+            <Route path="/complete-profile" element={<CompleteProfile />} />
             <Route path="/pending-approval" element={<PendingApproval />} />
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />

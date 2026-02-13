@@ -57,6 +57,12 @@ const ProtectedRoute: React.FC = () => {
         return <Navigate to="/login" replace />;
     }
 
+    // Allow access to complete-profile page regardless of approval status
+    if (location.pathname === '/complete-profile') {
+        return <Outlet />;
+    }
+
+    // Redirect to pending-approval if not approved (and not on complete-profile)
     if (isApproved === false && location.pathname !== '/pending-approval') {
         return <Navigate to="/pending-approval" replace />;
     }

@@ -7,6 +7,21 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['age', 'height', 'weight', 'goals', 'dietary_prefs', 'allergies', 'is_approved']
         read_only_fields = ['is_approved']
+    
+    def validate_age(self, value):
+        if value is not None and (value < 10 or value > 120):
+            raise serializers.ValidationError("Age must be between 10 and 120")
+        return value
+    
+    def validate_height(self, value):
+        if value is not None and (value < 50 or value > 300):
+            raise serializers.ValidationError("Height must be between 50 and 300 cm")
+        return value
+    
+    def validate_weight(self, value):
+        if value is not None and (value < 20 or value > 500):
+            raise serializers.ValidationError("Weight must be between 20 and 500 kg")
+        return value
 
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(read_only=True)

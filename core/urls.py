@@ -14,5 +14,7 @@ urlpatterns = [
     path('meal-plans/', views.MealPlanListView.as_view(), name='meal_plans'),
     path('meal-plans/<int:pk>/', views.MealPlanDetailView.as_view(), name='meal_plan_detail'),
     path('weekly-updates/', views.WeeklyUpdateView.as_view(), name='weekly_updates'),
+    path('weight-history/', views.WeightHistoryView.as_view(), name='weight_history'),
+    path('social-progress/', views.SocialProgressView.as_view(), name='social_progress'),
     path('auth/google/', views.GoogleLogin.as_view(), name='google_login'),
 ]
