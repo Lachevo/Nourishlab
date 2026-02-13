@@ -99,7 +99,23 @@ const Dashboard: React.FC = () => {
                 pointHoverBackgroundColor: theme.palette.primary.main,
                 pointHoverBorderColor: '#fff',
                 pointHoverBorderWidth: 2,
+                yAxisID: 'y',
             },
+            // Add BMI Dataset if height is available
+            ...(user?.profile?.height ? [{
+                label: 'BMI',
+                data: weightHistory.map(u => {
+                    const heightInMeters = (user?.profile?.height || 0) / 100;
+                    return heightInMeters > 0 ? Number((u.current_weight / (heightInMeters * heightInMeters)).toFixed(1)) : null;
+                }),
+                borderColor: theme.palette.secondary.main,
+                backgroundColor: 'transparent',
+                borderDash: [5, 5],
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                yAxisID: 'y1',
+            }] : []),
         ],
     };
 
@@ -317,6 +333,18 @@ const Dashboard: React.FC = () => {
                                                     }
                                                 }
                                             },
+                                            y1: { // BMI Axis
+                                                position: 'right',
+                                                beginAtZero: false,
+                                                grid: {
+                                                    drawOnChartArea: false,
+                                                },
+                                                ticks: {
+                                                    callback: function (value) {
+                                                        return 'BMI ' + value;
+                                                    }
+                                                }
+                                            },
                                             x: {
                                                 grid: {
                                                     display: false,
@@ -330,7 +358,13 @@ const Dashboard: React.FC = () => {
                                         },
                                         plugins: {
                                             legend: {
-                                                display: false
+                                                display: true,
+                                                position: 'top',
+                                                align: 'end',
+                                                labels: {
+                                                    usePointStyle: true,
+                                                    boxWidth: 8,
+                                                }
                                             },
                                             tooltip: {
                                                 padding: 12,

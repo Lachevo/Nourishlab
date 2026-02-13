@@ -34,3 +34,12 @@ class WeeklyUpdate(models.Model):
 
     def __str__(self):
         return f"Update by {self.user.username} on {self.date}"
+
+class MealPlanTemplate(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    content = RichTextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name

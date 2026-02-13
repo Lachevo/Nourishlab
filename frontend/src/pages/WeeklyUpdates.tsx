@@ -121,6 +121,27 @@ const WeeklyUpdates: React.FC = () => {
                         {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
                         {success && <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>{success}</Alert>}
 
+                        {updates.length > 0 && (() => {
+                            const latestUpdate = updates.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+                            const lastDate = new Date(latestUpdate.date);
+                            const nextDate = new Date(lastDate);
+                            nextDate.setDate(lastDate.getDate() + 7);
+                            const today = new Date();
+
+                            // Reset time components for accurate date comparison
+                            today.setHours(0, 0, 0, 0);
+                            nextDate.setHours(0, 0, 0, 0);
+
+                            if (today < nextDate) {
+                                return (
+                                    <Alert severity="info" sx={{ mb: 3, borderRadius: 2 }}>
+                                        You can log your next update on <strong>{nextDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</strong>.
+                                    </Alert>
+                                );
+                            }
+                            return null;
+                        })()}
+
                         <form onSubmit={handleSubmit}>
                             <TextField
                                 fullWidth
@@ -130,6 +151,19 @@ const WeeklyUpdates: React.FC = () => {
                                 onChange={(e) => setCurrentWeight(Number(e.target.value))}
                                 required
                                 margin="normal"
+                                disabled={(() => {
+                                    if (updates.length > 0) {
+                                        const latestUpdate = updates.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+                                        const lastDate = new Date(latestUpdate.date);
+                                        const nextDate = new Date(lastDate);
+                                        nextDate.setDate(lastDate.getDate() + 7);
+                                        const today = new Date();
+                                        today.setHours(0, 0, 0, 0);
+                                        nextDate.setHours(0, 0, 0, 0);
+                                        return today < nextDate;
+                                    }
+                                    return false;
+                                })()}
                                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                             />
                             <TextField
@@ -141,6 +175,19 @@ const WeeklyUpdates: React.FC = () => {
                                 onChange={(e) => setNotes(e.target.value)}
                                 margin="normal"
                                 placeholder="How are you feeling this week?"
+                                disabled={(() => {
+                                    if (updates.length > 0) {
+                                        const latestUpdate = updates.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+                                        const lastDate = new Date(latestUpdate.date);
+                                        const nextDate = new Date(lastDate);
+                                        nextDate.setDate(lastDate.getDate() + 7);
+                                        const today = new Date();
+                                        today.setHours(0, 0, 0, 0);
+                                        nextDate.setHours(0, 0, 0, 0);
+                                        return today < nextDate;
+                                    }
+                                    return false;
+                                })()}
                                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                             />
                             <Button
@@ -148,7 +195,19 @@ const WeeklyUpdates: React.FC = () => {
                                 variant="contained"
                                 color="primary"
                                 fullWidth
-                                disabled={submitting}
+                                disabled={submitting || (() => {
+                                    if (updates.length > 0) {
+                                        const latestUpdate = updates.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+                                        const lastDate = new Date(latestUpdate.date);
+                                        const nextDate = new Date(lastDate);
+                                        nextDate.setDate(lastDate.getDate() + 7);
+                                        const today = new Date();
+                                        today.setHours(0, 0, 0, 0);
+                                        nextDate.setHours(0, 0, 0, 0);
+                                        return today < nextDate;
+                                    }
+                                    return false;
+                                })()}
                                 size="large"
                                 sx={{ mt: 3, py: 1.5 }}
                             >

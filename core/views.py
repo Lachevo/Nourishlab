@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
@@ -62,6 +62,24 @@ class WeeklyUpdateView(generics.ListCreateAPIView):
         return WeeklyUpdate.objects.filter(user=self.request.user).order_by('-date')
 
     def perform_create(self, serializer):
+        from datetime import timedelta
+        from django.utils import timezone
+        
+        # Check if user has already logged an update in the last 7 days
+        latest_update = WeeklyUpdate.objects.filter(user=self.request.user).order_by('-date').first()
+        
+        if latest_update:
+            # If the latest update was created today, it's definitely too soon
+            # Note: models.DateField(auto_now_add=True) stores the date the object was created
+            today = timezone.now().date()
+            days_since_last_update = (today - latest_update.date).days
+            
+            if days_since_last_update < 7:
+                next_available_date = latest_update.date + timedelta(days=7)
+                raise serializers.ValidationError(
+                    f"You can only log your progress once a week. Next update available on {next_available_date.strftime('%b %d, %Y')}."
+                )
+        
         serializer.save(user=self.request.user)
 
 class WeightHistoryView(APIView):
@@ -93,25 +111,25 @@ class SocialProgressView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        # Get users with profiles and at least one weekly update
-        # Simplified: Get top 5 users who have lost the most weight
-        profiles = Profile.objects.exclude(user=request.user).select_related('user')
+        # Get latest 20 updates from the community (excluding current user)
+        # This creates a "Live Feed" feel rather than just a leaderboard
+        recent_updates = WeeklyUpdate.objects.exclude(user=request.user).select_related('user', 'user__profile').order_by('-date', '-id')[:20]
         
         social_data = []
-        for p in profiles:
-            first_weight = p.weight
-            latest_update = WeeklyUpdate.objects.filter(user=p.user).order_by('-date').first()
+        for update in recent_updates:
+            profile = getattr(update.user, 'profile', None)
+            first_weight = profile.weight if profile else None
             
-            if latest_update and first_weight:
-                lost = first_weight - latest_update.current_weight
-                social_data.append({
-                    'username': p.user.username,
-                    'weight_lost': round(lost, 1),
-                    'current_weight': latest_update.current_weight,
-                    'date': latest_update.date.isoformat()
-                })
-        
-        # Sort by weight lost and take top 5
-        social_data = sorted(social_data, key=lambda x: x['weight_lost'], reverse=True)[:5]
+            weight_diff = 0
+            if first_weight:
+                weight_diff = update.current_weight - first_weight
+                
+            social_data.append({
+                'username': update.user.username,
+                'weight_lost': round(weight_diff * -1, 1), # Positive means lost, negative means gained
+                'current_weight': update.current_weight,
+                'date': update.date.isoformat(),
+                'id': update.id
+            })
         
         return Response(social_data)

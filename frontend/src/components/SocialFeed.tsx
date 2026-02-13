@@ -98,22 +98,28 @@ const SocialFeed: React.FC = () => {
                                             <Box sx={{
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                color: 'success.main',
-                                                bgcolor: alpha(theme.palette.success.main, 0.1),
+                                                color: item.weight_lost >= 0 ? 'success.main' : 'warning.main',
+                                                bgcolor: item.weight_lost >= 0 ? alpha(theme.palette.success.main, 0.1) : alpha(theme.palette.warning.main, 0.1),
                                                 px: 1,
                                                 py: 0.25,
                                                 borderRadius: 1,
                                             }}>
-                                                <TrendingDownIcon sx={{ fontSize: 14, mr: 0.5 }} />
+                                                <TrendingDownIcon
+                                                    sx={{
+                                                        fontSize: 14,
+                                                        mr: 0.5,
+                                                        transform: item.weight_lost < 0 ? 'rotate(180deg)' : 'none'
+                                                    }}
+                                                />
                                                 <Typography variant="caption" fontWeight={800}>
-                                                    {item.weight_lost} kg
+                                                    {Math.abs(item.weight_lost)} kg {item.weight_lost >= 0 ? 'Lost' : 'Gained'}
                                                 </Typography>
                                             </Box>
                                         </Box>
                                     }
                                     secondary={
                                         <Typography variant="caption" color="textSecondary">
-                                            {new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                            {new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} • {item.current_weight} kg
                                         </Typography>
                                     }
                                 />
