@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: nourishlab
+    runtime: python
+    buildCommand: bash build.sh
+    startCommand: gunicorn nourishlab.wsgi
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.14.0
+      - key: NODE_VERSION
+        value: 22.22.0
