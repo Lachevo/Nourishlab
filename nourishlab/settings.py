@@ -34,6 +34,12 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
+# Automatically trust Render domains in production
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    ALLOWED_HOSTS.append('.onrender.com')
+
 
 # Application definition
 
