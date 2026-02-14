@@ -29,7 +29,10 @@ class ProfileAdmin(admin.ModelAdmin):
     actions = ['assign_meal_plan_from_template', 'toggle_staff_status', 'promote_to_nutritionist']
 
     def is_staff_status(self, obj):
-        return obj.user.is_staff
+        try:
+            return obj.user.is_staff
+        except User.DoesNotExist:
+            return False
     is_staff_status.boolean = True
     is_staff_status.short_description = 'Nutritionist/Staff'
 
@@ -58,7 +61,12 @@ class ProfileAdmin(admin.ModelAdmin):
     toggle_staff_status.short_description = "Toggle Nutritionist/Staff status"
 
     def get_groups(self, obj):
-        return ", ".join([g.name for g in obj.user.groups.all()])
+        try:
+            if obj.user:
+                return ", ".join([g.name for g in obj.user.groups.all()])
+        except User.DoesNotExist:
+            pass
+        return "N/A"
     get_groups.short_description = 'Groups'
 
     def assign_meal_plan_from_template(self, request, queryset):
@@ -112,7 +120,10 @@ class MealPlanAdmin(admin.ModelAdmin):
     search_fields = ('user__username',)
 
 # Customize standard User admin
-admin.site.unregister(User)
+try:
+    admin.site.unregister(User)
+except admin.sites.NotRegistered:
+    pass
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')

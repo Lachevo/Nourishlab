@@ -13,7 +13,12 @@ class Profile(models.Model):
     is_approved = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.username}'s Profile"
+        try:
+            if self.user:
+                return f"{self.user.username}'s Profile"
+        except User.DoesNotExist:
+            pass
+        return f"Orphaned Profile (ID: {self.id})"
 
 class Recipe(models.Model):
     title = models.CharField(max_length=200)
