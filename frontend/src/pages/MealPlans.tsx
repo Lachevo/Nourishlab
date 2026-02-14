@@ -213,7 +213,7 @@ const MealPlans: React.FC = () => {
                                             '& strong': { color: 'text.primary', fontWeight: 700 },
                                         }}
                                         dangerouslySetInnerHTML={{
-                                            __html: DOMPurify.sanitize(plan.content),
+                                            __html: DOMPurify.sanitize(plan.content || ''),
                                         }}
                                     />
 

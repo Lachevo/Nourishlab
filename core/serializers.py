@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, MealPlan, WeeklyUpdate
+from .models import Profile, MealPlan, WeeklyUpdate, Recipe, MealPlanTemplate, FoodLog, Message, LabResult
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,7 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'profile']
+        fields = ['id', 'username', 'email', 'password', 'profile', 'is_staff']
 
     def create(self, validated_data):
         return User.objects.create_user(
@@ -38,13 +38,44 @@ class UserSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
 
+class RecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = '__all__'
+
 class MealPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = MealPlan
-        fields = ['id', 'start_date', 'end_date', 'content', 'created_at']
+        fields = ['id', 'start_date', 'end_date', 'content', 'structured_plan', 'created_at']
 
 class WeeklyUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeeklyUpdate
-        fields = ['id', 'date', 'current_weight', 'notes']
+        fields = ['id', 'date', 'current_weight', 'waist_cm', 'hips_cm', 'chest_cm', 'arm_cm', 'thigh_cm', 'energy_level', 'compliance_score', 'notes', 'photo_front', 'photo_side', 'photo_back']
         read_only_fields = ['date']
+
+class FoodLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FoodLog
+        fields = '__all__'
+        read_only_fields = ['created_at', 'user']
+
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.StringRelatedField(read_only=True)
+    recipient = serializers.SlugRelatedField(slug_field='username', queryset=User.objects.all())
+
+    class Meta:
+        model = Message
+        fields = ['id', 'sender', 'recipient', 'content', 'timestamp', 'is_read']
+        read_only_fields = ['sender', 'timestamp']
+
+class LabResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LabResult
+        fields = '__all__'
+        read_only_fields = ['uploaded_at', 'user']
+
+class MealPlanTemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MealPlanTemplate
+        fields = ['id', 'name', 'description', 'content', 'structured_plan', 'created_at']

@@ -10,6 +10,10 @@ import MealPlans from './pages/MealPlans';
 import WeeklyUpdates from './pages/WeeklyUpdates';
 import PendingApproval from './pages/PendingApproval';
 import CompleteProfile from './pages/CompleteProfile';
+import FoodLogPage from './pages/FoodLog';
+import MessagesPage from './pages/Messages';
+import LabResultsPage from './pages/LabResults';
+import AdminMessages from './pages/AdminMessages';
 
 function App() {
   return (
@@ -27,6 +31,10 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/meal-plans" element={<MealPlans />} />
               <Route path="/weekly-updates" element={<WeeklyUpdates />} />
+              <Route path="/food-log" element={<FoodLogPage />} />
+              <Route path="/messages" element={<MessagesPage />} />
+              <Route path="/lab-results" element={<LabResultsPage />} />
+              <Route path="/admin/messages" element={<AdminMessages />} />
             </Route>
           </Route>
 

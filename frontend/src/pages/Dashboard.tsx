@@ -9,7 +9,6 @@ import {
     Card,
     CardContent,
     CardActions,
-    Divider,
     Container,
     Avatar,
     useTheme,
@@ -19,9 +18,11 @@ import { useNavigate } from 'react-router-dom';
 import SocialFeed from '../components/SocialFeed';
 import { Line } from 'react-chartjs-2';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
-import AssessmentIcon from '@mui/icons-material/Assessment';
 import FlagIcon from '@mui/icons-material/Flag';
+import ChatIcon from '@mui/icons-material/Chat';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
+import ScienceIcon from '@mui/icons-material/Science';
+
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -32,7 +33,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import type { User, MealPlan } from '../types';
+import type { User, MealPlan, FoodLog, Message } from '../types';
 
 ChartJS.register(
     CategoryScale,
@@ -47,17 +48,21 @@ ChartJS.register(
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState<User | null>(null);
-    const [latestMealPlan, setLatestMealPlan] = useState<MealPlan | null>(null);
+    const [_latestMealPlan, setLatestMealPlan] = useState<MealPlan | null>(null);
     const [weightHistory, setWeightHistory] = useState<any[]>([]);
+    const [recentLogs, setRecentLogs] = useState<FoodLog[]>([]);
+    const [recentMessages, setRecentMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [profileRes, mealPlansRes, historyRes] = await Promise.all([
+                const [profileRes, mealPlansRes, historyRes, logsRes, msgsRes] = await Promise.all([
                     api.get('/profile/'),
                     api.get('/meal-plans/?limit=1'),
                     api.get('/weight-history/'),
+                    api.get('/food-logs/?limit=3'),
+                    api.get('/messages/?limit=3')
                 ]);
 
                 setUser(profileRes.data);
@@ -68,6 +73,8 @@ const Dashboard: React.FC = () => {
                 }
 
                 setWeightHistory(historyRes.data || []);
+                setRecentLogs(logsRes.data || []);
+                setRecentMessages(msgsRes.data || []);
 
             } catch (error) {
                 console.error('Error fetching dashboard data', error);
@@ -133,281 +140,141 @@ const Dashboard: React.FC = () => {
                         Dashboard
                     </Typography>
                     <Typography variant="body1" color="textSecondary">
-                        Welcome back! Here's your progress overview.
+                        Welcome back, {user?.username}! Here's what's happening.
                     </Typography>
                 </Box>
-                <Avatar
-                    sx={{
-                        width: 48,
-                        height: 48,
-                        bgcolor: 'primary.main',
-                        fontSize: '1.25rem',
-                        fontWeight: 600,
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                    }}
-                >
-                    {user?.username?.[0]?.toUpperCase() || 'U'}
-                </Avatar>
             </Box>
 
             <Grid container spacing={4}>
-                {/* Profile Summary */}
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Card sx={{
-                        height: '100%',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        '&:hover': {
-                            transform: 'translateY(-4px)',
-                            boxShadow: '0 12px 24px -4px rgba(0, 0, 0, 0.12)'
-                        }
-                    }}>
-                        <Box sx={{
-                            position: 'absolute',
-                            top: -20,
-                            right: -20,
-                            opacity: 0.05,
-                            transform: 'rotate(-15deg)'
-                        }}>
-                            <TrendingUpIcon sx={{ fontSize: 120 }} />
-                        </Box>
-                        <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.1), color: 'success.main', mr: 1.5 }}>
-                                    <TrendingUpIcon />
-                                </Avatar>
-                                <Typography color="textSecondary" variant="subtitle2" fontWeight={700} textTransform="uppercase" letterSpacing="0.05em">
-                                    Current Stats
-                                </Typography>
-                            </Box>
-
-                            <Typography variant="h3" fontWeight={800} color="primary" sx={{ my: 1, letterSpacing: '-0.02em' }}>
-                                {user?.profile?.weight ? `${user.profile.weight} kg` : 'N/A'}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary" fontWeight={500}>
-                                Starting Weight
-                            </Typography>
-
-                            <Divider sx={{ my: 2.5, opacity: 0.6 }} />
-
-                            <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: alpha(theme.palette.background.default, 0.5), p: 1, borderRadius: 2 }}>
-                                <FlagIcon sx={{ fontSize: 18, mr: 1, color: 'text.secondary' }} />
-                                <Typography variant="body2" fontWeight={500}>
-                                    Goal: <Box component="span" sx={{ color: 'text.primary', fontWeight: 700 }}>{user?.profile?.goals || 'Not set'}</Box>
-                                </Typography>
-                            </Box>
-                        </CardContent>
-                        <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
-                            <Button
-                                fullWidth
-                                variant="outlined"
-                                color="primary"
-                                onClick={() => navigate('/profile')}
-                                sx={{
-                                    borderRadius: 2,
-                                    textTransform: 'none',
-                                    fontWeight: 600,
-                                    borderWidth: '1.5px',
-                                    '&:hover': { borderWidth: '1.5px' }
-                                }}
-                            >
-                                Update Profile
-                            </Button>
-                        </CardActions>
-                    </Card>
-                </Grid>
-
-                {/* Meal Plan Summary */}
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
-                        <Box sx={{
-                            position: 'absolute',
-                            top: -20,
-                            right: -20,
-                            opacity: 0.05,
-                            transform: 'rotate(-15deg)'
-                        }}>
-                            <RestaurantMenuIcon sx={{ fontSize: 120 }} />
-                        </Box>
-                        <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.1), color: 'secondary.main', mr: 1.5 }}>
-                                    <RestaurantMenuIcon />
-                                </Avatar>
-                                <Typography color="textSecondary" variant="subtitle2" fontWeight={600} textTransform="uppercase">
-                                    Meal Plan
-                                </Typography>
-                            </Box>
-
-                            {latestMealPlan ? (
-                                <>
-                                    <Typography variant="h5" fontWeight={700} sx={{ mt: 1, mb: 0.5 }}>
-                                        Active Plan
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                                        {latestMealPlan.start_date} — {latestMealPlan.end_date}
-                                    </Typography>
-                                    <Typography variant="body2" fontWeight={500} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), p: 1.5, borderRadius: 2 }}>
-                                        Don't forget to check your meals for today!
-                                    </Typography>
-                                </>
-                            ) : (
-                                <Box sx={{ py: 3, textAlign: 'center' }}>
-                                    <Typography variant="body2" color="textSecondary">
-                                        No active meal plan found.
-                                    </Typography>
-                                </Box>
-                            )}
-                        </CardContent>
-                        <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                onClick={() => navigate('/meal-plans')}
-                            >
-                                View My Plans
-                            </Button>
-                        </CardActions>
-                    </Card>
-                </Grid>
-
-                {/* Quick Action */}
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Card sx={{
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`,
-                        border: `1px dashed ${alpha(theme.palette.primary.main, 0.3)}`,
-                        boxShadow: 'none',
-                        '&:hover': {
-                            transform: 'translateY(-4px)',
-                            borderStyle: 'solid',
-                        }
-                    }}>
-                        <CardContent sx={{ textAlign: 'center' }}>
-                            <Avatar sx={{ width: 56, height: 56, bgcolor: 'primary.main', mb: 2, mx: 'auto', boxShadow: '0 8px 16px rgba(79, 70, 229, 0.2)' }}>
-                                <AssessmentIcon />
-                            </Avatar>
-                            <Typography variant="h6" fontWeight={700} gutterBottom>
-                                Track Progress
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-                                Log your weekly weight and notes to see your progress journey.
-                            </Typography>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                size="large"
-                                fullWidth
-                                onClick={() => navigate('/weekly-updates')}
-                            >
-                                New Weekly Update
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                {/* Weight Chart */}
+                {/* Stats & Progress */}
                 <Grid size={{ xs: 12, md: 8 }}>
-                    <Paper sx={{
-                        p: 3,
-                        height: '100%',
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                        border: '1px solid rgba(226, 232, 240, 0.8)',
-                    }}>
-                        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="h6" fontWeight={700}>Weight Progress Journey</Typography>
-                            <Typography variant="caption" color="textSecondary" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), px: 1.5, py: 0.5, borderRadius: 10, fontWeight: 600 }}>
-                                {weightHistory.length} ENTRIES
-                            </Typography>
-                        </Box>
+                    <Grid container spacing={3}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Card sx={{ borderRadius: 4, border: '1px solid rgba(0,0,0,0.05)', height: '100%' }}>
+                                <CardContent>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                        <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main', mr: 1.5 }}>
+                                            <TrendingUpIcon />
+                                        </Avatar>
+                                        <Typography color="textSecondary" variant="subtitle2" fontWeight={700}>CURRENT STATUS</Typography>
+                                    </Box>
+                                    <Typography variant="h4" fontWeight={800} color="primary">
+                                        {user?.profile?.weight || '--'} <Typography component="span" variant="h6">kg</Typography>
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary">Current Weight</Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Card sx={{ borderRadius: 4, border: '1px solid rgba(0,0,0,0.05)', height: '100%' }}>
+                                <CardContent>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                        <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.1), color: 'success.main', mr: 1.5 }}>
+                                            <FlagIcon />
+                                        </Avatar>
+                                        <Typography color="textSecondary" variant="subtitle2" fontWeight={700}>ACTIVE GOAL</Typography>
+                                    </Box>
+                                    <Typography variant="h6" fontWeight={700} noWrap>
+                                        {user?.profile?.goals || 'Set your goals'}
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary">Personal Target</Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
 
-                        {weightHistory.length > 0 ? (
-                            <Box sx={{ height: 380 }}>
-                                <Line
-                                    data={chartData}
-                                    options={{
-                                        maintainAspectRatio: false,
-                                        interaction: {
-                                            intersect: false,
-                                            mode: 'index',
-                                        },
-                                        scales: {
-                                            y: {
-                                                beginAtZero: false,
-                                                grid: {
-                                                    color: alpha(theme.palette.divider, 0.05),
-                                                },
-                                                ticks: {
-                                                    font: {
-                                                        weight: 600,
-                                                    }
-                                                }
-                                            },
-                                            y1: { // BMI Axis
-                                                position: 'right',
-                                                beginAtZero: false,
-                                                grid: {
-                                                    drawOnChartArea: false,
-                                                },
-                                                ticks: {
-                                                    callback: function (value) {
-                                                        return 'BMI ' + value;
-                                                    }
-                                                }
-                                            },
-                                            x: {
-                                                grid: {
-                                                    display: false,
-                                                },
-                                                ticks: {
-                                                    font: {
-                                                        weight: 600,
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        plugins: {
-                                            legend: {
-                                                display: true,
-                                                position: 'top',
-                                                align: 'end',
-                                                labels: {
-                                                    usePointStyle: true,
-                                                    boxWidth: 8,
-                                                }
-                                            },
-                                            tooltip: {
-                                                padding: 12,
-                                                backgroundColor: theme.palette.background.paper,
-                                                titleColor: theme.palette.text.primary,
-                                                bodyColor: theme.palette.text.secondary,
-                                                borderColor: theme.palette.divider,
-                                                borderWidth: 1,
-                                                displayColors: false,
-                                                titleFont: { weight: 700, size: 14 },
-                                                bodyFont: { size: 13 },
-                                            }
-                                        }
-                                    }}
-                                />
-                            </Box>
-                        ) : (
-                            <Box sx={{ height: 380, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px dashed ${theme.palette.divider}`, borderRadius: 3 }}>
-                                <Typography color="textSecondary" fontWeight={500}>No weight entries found. Start by logging your first update!</Typography>
-                            </Box>
-                        )}
-                    </Paper>
+                        <Grid size={{ xs: 12 }}>
+                            <Paper sx={{ p: 3, borderRadius: 4, border: '1px solid rgba(0,0,0,0.05)' }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+                                    <Typography variant="h6" fontWeight={700}>Weight Journey</Typography>
+                                    <Button size="small" onClick={() => navigate('/weekly-updates')}>Log Progress</Button>
+                                </Box>
+                                <Box sx={{ height: 260 }}>
+                                    <Line data={chartData} options={{ maintainAspectRatio: false, plugins: { legend: { display: false } } }} />
+                                </Box>
+                            </Paper>
+                        </Grid>
+                    </Grid>
                 </Grid>
 
-                {/* Social Feed */}
+                {/* Right Sidebar - Social & Community */}
                 <Grid size={{ xs: 12, md: 4 }}>
                     <SocialFeed />
                 </Grid>
+
+                {/* Feature Widgets Row */}
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Card sx={{ borderRadius: 4, border: '1px solid rgba(0,0,0,0.05)', height: '100%' }}>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.1), color: 'secondary.main', mr: 1.5 }}>
+                                    <ChatIcon />
+                                </Avatar>
+                                <Typography variant="h6" fontWeight={700}>Messages</Typography>
+                            </Box>
+                            {recentMessages.length > 0 ? (
+                                <Box sx={{ mb: 2 }}>
+                                    {recentMessages.map(m => (
+                                        <Box key={m.id} sx={{ mb: 1.5 }}>
+                                            <Typography variant="body2" noWrap fontWeight={600}>{m.sender}: {m.content}</Typography>
+                                            <Typography variant="caption" color="textSecondary">{new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Typography>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            ) : (
+                                <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>No recent messages.</Typography>
+                            )}
+                        </CardContent>
+                        <CardActions>
+                            <Button fullWidth onClick={() => navigate('/messages')}>Chat with Nutritionist</Button>
+                        </CardActions>
+                    </Card>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Card sx={{ borderRadius: 4, border: '1px solid rgba(0,0,0,0.05)', height: '100%' }}>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                <Avatar sx={{ bgcolor: alpha(theme.palette.warning.main, 0.1), color: 'warning.main', mr: 1.5 }}>
+                                    <FastfoodIcon />
+                                </Avatar>
+                                <Typography variant="h6" fontWeight={700}>Food Journal</Typography>
+                            </Box>
+                            {recentLogs.length > 0 ? (
+                                <Box>
+                                    {recentLogs.map(l => (
+                                        <Box key={l.id} sx={{ mb: 1, display: 'flex', justifyContent: 'space-between' }}>
+                                            <Typography variant="body2">{l.meal_type}</Typography>
+                                            <Typography variant="caption" color="textSecondary">{l.date}</Typography>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            ) : (
+                                <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>Log your meals today!</Typography>
+                            )}
+                        </CardContent>
+                        <CardActions>
+                            <Button fullWidth variant="outlined" onClick={() => navigate('/food-log')}>View Journal</Button>
+                        </CardActions>
+                    </Card>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Card sx={{ borderRadius: 4, border: '1px solid rgba(0,0,0,0.05)', height: '100%' }}>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                <Avatar sx={{ bgcolor: alpha(theme.palette.info.main, 0.1), color: 'info.main', mr: 1.5 }}>
+                                    <ScienceIcon />
+                                </Avatar>
+                                <Typography variant="h6" fontWeight={700}>Lab Results</Typography>
+                            </Box>
+                            <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>Keep track of your blood work and documents.</Typography>
+                        </CardContent>
+                        <CardActions>
+                            <Button fullWidth onClick={() => navigate('/lab-results')}>Manage Documents</Button>
+                        </CardActions>
+                    </Card>
+                </Grid>
+
             </Grid>
         </Box>
     );

@@ -1,9 +1,10 @@
-from rest_framework import generics, permissions, status, serializers
+from rest_framework import generics, permissions, status, serializers, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
-from .models import Profile, MealPlan, WeeklyUpdate
-from .serializers import UserSerializer, ProfileSerializer, MealPlanSerializer, WeeklyUpdateSerializer
+from .models import Profile, MealPlan, WeeklyUpdate, Recipe, FoodLog, Message, LabResult
+from .serializers import UserSerializer, ProfileSerializer, MealPlanSerializer, WeeklyUpdateSerializer, RecipeSerializer, FoodLogSerializer, MessageSerializer, LabResultSerializer
 from .social_views import GoogleLogin
 from django.db.models import F
 
@@ -107,6 +108,16 @@ class WeightHistoryView(APIView):
             
         return Response(history)
 
+class RecipeViewSet(generics.RetrieveAPIView):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class RecipeListView(generics.ListAPIView):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 class SocialProgressView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -131,5 +142,78 @@ class SocialProgressView(APIView):
                 'date': update.date.isoformat(),
                 'id': update.id
             })
-        
         return Response(social_data)
+        
+class FoodLogViewSet(generics.ListCreateAPIView):
+    serializer_class = FoodLogSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return FoodLog.objects.filter(user=self.request.user).order_by('-date')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class MessageViewSet(viewsets.ModelViewSet):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        from django.db.models import Q
+        user = self.request.user
+        
+        # If staff, they can filter by a recipient (client)
+        client_username = self.request.query_params.get('client_username')
+        if user.is_staff and client_username:
+            return Message.objects.filter(
+                (Q(sender=user) & Q(recipient__username=client_username)) |
+                (Q(recipient=user) & Q(sender__username=client_username))
+            ).order_by('timestamp')
+            
+        return Message.objects.filter(
+            Q(sender=user) | Q(recipient=user)
+        ).order_by('timestamp')
+
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
+
+    @action(detail=False, methods=['post'])
+    def mark_read(self, request):
+        Message.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+        return Response({'status': 'messages marked as read'})
+
+class ConversationListView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        # Find all unique users who have exchanged messages with this staff member
+        sent_to = Message.objects.filter(sender=request.user).values_list('recipient', flat=True)
+        received_from = Message.objects.filter(recipient=request.user).values_list('sender', flat=True)
+        
+        user_ids = set(sent_to) | set(received_from)
+        users = User.objects.filter(id__in=user_ids).exclude(id=request.user.id)
+        
+        # Also include all users if the staff wants to start a new chat? 
+        # For now, just those with history.
+        
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
+class NutritionistView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        # Return all staff users who can act as nutritionists
+        nutritionists = User.objects.filter(is_staff=True)
+        serializer = UserSerializer(nutritionists, many=True)
+        return Response(serializer.data)
+
+class LabResultViewSet(generics.ListCreateAPIView):
+    serializer_class = LabResultSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return LabResult.objects.filter(user=self.request.user).order_by('-uploaded_at')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

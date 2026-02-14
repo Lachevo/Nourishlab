@@ -17,4 +17,14 @@ urlpatterns = [
     path('weight-history/', views.WeightHistoryView.as_view(), name='weight_history'),
     path('social-progress/', views.SocialProgressView.as_view(), name='social_progress'),
     path('auth/google/', views.GoogleLogin.as_view(), name='google_login'),
+    
+    path('recipes/', views.RecipeListView.as_view(), name='recipe_list'),
+    path('recipes/<int:pk>/', views.RecipeViewSet.as_view(), name='recipe_detail'),
+    
+    path('food-logs/', views.FoodLogViewSet.as_view(), name='food_logs'),
+    path('messages/', views.MessageViewSet.as_view({'get': 'list', 'post': 'create'}), name='messages'),
+    path('messages/mark_read/', views.MessageViewSet.as_view({'post': 'mark_read'}), name='messages_mark_read'),
+    path('messages/conversations/', views.ConversationListView.as_view(), name='conversation_list'),
+    path('nutritionists/', views.NutritionistView.as_view(), name='nutritionists'),
+    path('lab-results/', views.LabResultViewSet.as_view(), name='lab_results'),
 ]

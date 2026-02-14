@@ -24,31 +24,18 @@ import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
+import ChatIcon from '@mui/icons-material/Chat';
+import ScienceIcon from '@mui/icons-material/Science';
 
-import api from '../services/api';
 
 const drawerWidth = 260; // Slightly wider for a more spacious feel
 
 const Layout: React.FC = () => {
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [mobileOpen, setMobileOpen] = React.useState(false);
-    const [userInitial, setUserInitial] = React.useState('U');
-
-    React.useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const response = await api.get('/profile/');
-                if (response.data && response.data.username) {
-                    setUserInitial(response.data.username[0].toUpperCase());
-                }
-            } catch (error) {
-                console.error('Failed to fetch user profile for layout', error);
-            }
-        };
-        fetchProfile();
-    }, []);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -61,7 +48,14 @@ const Layout: React.FC = () => {
         { text: 'Profile', icon: <PersonIcon />, path: '/profile' },
         { text: 'Meal Plans', icon: <RestaurantMenuIcon />, path: '/meal-plans' },
         { text: 'Weekly Updates', icon: <TrendingUpIcon />, path: '/weekly-updates' },
+        { text: 'Food Journal', icon: <FastfoodIcon />, path: '/food-log' },
+        { text: 'Lab Results', icon: <ScienceIcon />, path: '/lab-results' },
+        { text: 'Messages', icon: <ChatIcon />, path: '/messages' },
     ];
+
+    if (user?.is_staff) {
+        menuItems.push({ text: 'Client Messages', icon: <ChatIcon color="secondary" />, path: '/admin/messages' });
+    }
 
     const drawer = (
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -195,7 +189,7 @@ const Layout: React.FC = () => {
                     {/* Placeholder for User Profile Menu/Avatar if needed */}
                     <IconButton size="small" sx={{ ml: 2 }}>
                         <Avatar sx={{ width: 32, height: 32, bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main', fontWeight: 700, fontSize: '0.875rem' }}>
-                            {userInitial}
+                            {user?.username ? user.username[0].toUpperCase() : 'U'}
                         </Avatar>
                     </IconButton>
                 </Toolbar>
