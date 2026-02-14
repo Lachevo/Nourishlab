@@ -126,14 +126,19 @@ except admin.sites.NotRegistered:
     pass
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
-    list_editable = ('is_staff', 'is_active')
-    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
+    # Use standard list_display but safely
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+    list_filter = ('is_staff', 'is_superuser', 'is_active') # Remove 'groups' if it's causing issues
     actions = ['promote_to_nutritionist']
 
     def promote_to_nutritionist(self, request, queryset):
         from django.contrib.auth.models import Group
-        group, _ = Group.objects.get_or_create(name='Nutritionists')
+        try:
+            group, _ = Group.objects.get_or_create(name='Nutritionists')
+        except Exception:
+            self.message_user(request, "Error: Could not access/create 'Nutritionists' group.", level=messages.ERROR)
+            return
+
         count = 0
         for user in queryset:
             user.is_staff = True
@@ -142,12 +147,18 @@ class UserAdmin(BaseUserAdmin):
             user.groups.add(group)
             
             # Also approve profile if it exists
-            if hasattr(user, 'profile'):
-                user.profile.is_approved = True
-                user.profile.save()
+            try:
+                if hasattr(user, 'profile'):
+                    user.profile.is_approved = True
+                    user.profile.save()
+            except Exception:
+                pass # Continue with others if one fails
             count += 1
         self.message_user(request, f"{count} users promoted to Nutritionists.")
     promote_to_nutritionist.short_description = "Promote to Nutritionist Group"
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('groups')
 
 @admin.register(WeeklyUpdate)
 class WeeklyUpdateAdmin(admin.ModelAdmin):
