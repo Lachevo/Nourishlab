@@ -16,11 +16,15 @@ echo "Installing Python dependencies..."
 $PYTHON -m pip install -r requirements.txt
 
 # --- Frontend build ---
-echo "Building frontend..."
-cd frontend
-npm install
-npm run build
-cd ..
+if [ -d "frontend" ] && command -v npm >/dev/null 2>&1; then
+    echo "Building frontend..."
+    cd frontend
+    npm install
+    npm run build
+    cd ..
+else
+    echo "Skipping frontend build (npm not found or frontend directory missing)"
+fi
 
 # --- Django management ---
 echo "Collecting static files..."
