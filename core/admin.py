@@ -133,28 +133,35 @@ class UserAdmin(BaseUserAdmin):
 
     def promote_to_nutritionist(self, request, queryset):
         from django.contrib.auth.models import Group
+        import logging
+        logger = logging.getLogger('django')
+        
         try:
             group, _ = Group.objects.get_or_create(name='Nutritionists')
-        except Exception:
-            self.message_user(request, "Error: Could not access/create 'Nutritionists' group.", level=messages.ERROR)
+        except Exception as e:
+            logger.error(f"Failed to get/create Nutritionists group: {e}")
+            self.message_user(request, f"Error accessing 'Nutritionists' group: {e}", level=messages.ERROR)
             return
 
         count = 0
         for user in queryset:
-            user.is_staff = True
-            user.is_active = True
-            user.save()
-            user.groups.add(group)
-            
-            # Also approve profile if it exists
             try:
+                user.is_staff = True
+                user.is_active = True
+                user.save()
+                user.groups.add(group)
+                
+                # Also approve profile if it exists
                 if hasattr(user, 'profile'):
                     user.profile.is_approved = True
                     user.profile.save()
-            except Exception:
-                pass # Continue with others if one fails
-            count += 1
-        self.message_user(request, f"{count} users promoted to Nutritionists.")
+                count += 1
+            except Exception as e:
+                logger.error(f"Failed to promote user {user.username}: {e}")
+                self.message_user(request, f"Failed to promote {user.username}: {e}", level=messages.ERROR)
+                
+        if count > 0:
+            self.message_user(request, f"Successfully promoted {count} user(s).")
     promote_to_nutritionist.short_description = "Promote to Nutritionist Group"
 
     def get_queryset(self, request):
