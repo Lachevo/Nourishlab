@@ -8,7 +8,6 @@ Django==5.1.6
 django-allauth==65.14.1
 django-ckeditor==6.7.3
 django-cors-headers==4.9.0
-django-dotenv==1.4.2
 django-filter==24.3
 django-js-asset==3.1.2
 djangorestframework==3.16.1
