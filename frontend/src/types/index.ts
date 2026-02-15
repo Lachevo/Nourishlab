@@ -14,6 +14,7 @@ export interface Profile {
     dietary_prefs?: string;
     allergies?: string;
     is_approved: boolean;
+    is_nutritionist: boolean;
 }
 
 export interface Recipe {

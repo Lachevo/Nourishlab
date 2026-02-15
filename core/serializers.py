@@ -1,12 +1,12 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Profile, MealPlan, WeeklyUpdate, Recipe, MealPlanTemplate, FoodLog, Message, LabResult
+from .models import Profile, MealPlan, WeeklyUpdate, Recipe, MealPlanTemplate, FoodLog, Message, LabResult, NutritionistNote
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['age', 'height', 'weight', 'goals', 'dietary_prefs', 'allergies', 'is_approved']
-        read_only_fields = ['is_approved']
+        fields = ['age', 'height', 'weight', 'goals', 'dietary_prefs', 'allergies', 'is_approved', 'is_nutritionist']
+        read_only_fields = ['is_approved', 'is_nutritionist']
     
     def validate_age(self, value):
         if value is not None and (value < 10 or value > 120):
@@ -46,7 +46,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 class MealPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = MealPlan
-        fields = ['id', 'start_date', 'end_date', 'content', 'structured_plan', 'created_at']
+        fields = ['id', 'start_date', 'end_date', 'content', 'structured_plan', 'file', 'created_at']
 
 class WeeklyUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -79,3 +79,12 @@ class MealPlanTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = MealPlanTemplate
         fields = ['id', 'name', 'description', 'content', 'structured_plan', 'created_at']
+
+class NutritionistNoteSerializer(serializers.ModelSerializer):
+    nutritionist_name = serializers.CharField(source='nutritionist.username', read_only=True)
+    patient_name = serializers.CharField(source='patient.username', read_only=True)
+    
+    class Meta:
+        model = NutritionistNote
+        fields = ['id', 'nutritionist', 'nutritionist_name', 'patient', 'patient_name', 'content', 'tags', 'created_at', 'updated_at']
+        read_only_fields = ['nutritionist', 'created_at', 'updated_at']

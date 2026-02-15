@@ -11,6 +11,7 @@ class Profile(models.Model):
     dietary_prefs = models.TextField(blank=True, help_text="Vegetarian, Vegan, etc.")
     allergies = models.TextField(blank=True)
     is_approved = models.BooleanField(default=False)
+    is_nutritionist = models.BooleanField(default=False)
 
     def __str__(self):
         try:
@@ -49,6 +50,7 @@ class MealPlan(models.Model):
     content = RichTextField(blank=True, null=True, help_text="Legacy: Rich text content")
     # Structured plan: { "Monday": { "Breakfast": recipe_id, "Lunch": ... } }
     structured_plan = models.JSONField(blank=True, null=True, help_text="JSON structure of the weekly plan")
+    file = models.FileField(upload_to='meal_plans/', blank=True, null=True, help_text="PDF or image file of the meal plan")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -122,3 +124,17 @@ class MealPlanTemplate(models.Model):
 
     def __str__(self):
         return self.name
+
+class NutritionistNote(models.Model):
+    nutritionist = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notes_created')
+    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='nutritionist_notes')
+    content = models.TextField()
+    tags = models.CharField(max_length=200, blank=True, help_text="Comma-separated tags")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Note by {self.nutritionist.username} for {self.patient.username}"

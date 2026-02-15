@@ -4,6 +4,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from . import views
+from . import nutritionist_views
 
 urlpatterns = [
     path('auth/register/', views.RegisterView.as_view(), name='register'),
@@ -27,4 +28,17 @@ urlpatterns = [
     path('messages/conversations/', views.ConversationListView.as_view(), name='conversation_list'),
     path('nutritionists/', views.NutritionistView.as_view(), name='nutritionists'),
     path('lab-results/', views.LabResultViewSet.as_view(), name='lab_results'),
+    
+    # Nutritionist-specific endpoints
+    path('nutritionist/patients/', nutritionist_views.NutritionistPatientListView.as_view(), name='nutritionist_patients'),
+    path('nutritionist/patients/<int:pk>/', nutritionist_views.NutritionistPatientDetailView.as_view(), name='nutritionist_patient_detail'),
+    path('nutritionist/patients/<int:patient_id>/progress/', nutritionist_views.NutritionistPatientProgressView.as_view(), name='nutritionist_patient_progress'),
+    path('nutritionist/meal-plans/', nutritionist_views.NutritionistMealPlanViewSet.as_view({'get': 'list', 'post': 'create'}), name='nutritionist_meal_plans'),
+    path('nutritionist/meal-plans/<int:pk>/', nutritionist_views.NutritionistMealPlanViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='nutritionist_meal_plan_detail'),
+    path('nutritionist/templates/', nutritionist_views.NutritionistMealPlanTemplateViewSet.as_view({'get': 'list', 'post': 'create'}), name='nutritionist_templates'),
+    path('nutritionist/templates/<int:pk>/', nutritionist_views.NutritionistMealPlanTemplateViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='nutritionist_template_detail'),
+    path('nutritionist/stats/', nutritionist_views.NutritionistDashboardStatsView.as_view(), name='nutritionist_stats'),
+    path('nutritionist/notes/', nutritionist_views.NutritionistNoteViewSet.as_view({'get': 'list', 'post': 'create'}), name='nutritionist_notes'),
+    path('nutritionist/notes/<int:pk>/', nutritionist_views.NutritionistNoteViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='nutritionist_note_detail'),
+    path('nutritionist/recent-activity/', nutritionist_views.NutritionistRecentActivityView.as_view(), name='nutritionist_recent_activity'),
 ]

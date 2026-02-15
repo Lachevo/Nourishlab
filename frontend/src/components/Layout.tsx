@@ -43,7 +43,16 @@ const Layout: React.FC = () => {
 
     const theme = useTheme();
 
-    const menuItems = [
+    // Different menu items for nutritionists vs regular users
+    const menuItems = user?.profile?.is_nutritionist ? [
+        { text: 'Nutritionist Dashboard', icon: <DashboardIcon />, path: '/nutritionist' },
+        { text: 'Profile', icon: <PersonIcon />, path: '/profile' },
+        { text: 'Create Meal Plan', icon: <RestaurantMenuIcon />, path: '/nutritionist/create-meal-plan' },
+        { text: 'Client Weekly Updates', icon: <TrendingUpIcon />, path: '/nutritionist/weekly-updates' },
+        { text: 'Client Food Journals', icon: <FastfoodIcon />, path: '/nutritionist/food-journals' },
+        { text: 'Client Lab Results', icon: <ScienceIcon />, path: '/nutritionist/lab-results' },
+        { text: 'Client Messages', icon: <ChatIcon />, path: '/messages' },
+    ] : [
         { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
         { text: 'Profile', icon: <PersonIcon />, path: '/profile' },
         { text: 'Meal Plans', icon: <RestaurantMenuIcon />, path: '/meal-plans' },
@@ -52,10 +61,6 @@ const Layout: React.FC = () => {
         { text: 'Lab Results', icon: <ScienceIcon />, path: '/lab-results' },
         { text: 'Messages', icon: <ChatIcon />, path: '/messages' },
     ];
-
-    if (user?.is_staff) {
-        menuItems.push({ text: 'Client Messages', icon: <ChatIcon color="secondary" />, path: '/admin/messages' });
-    }
 
     const drawer = (
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
