@@ -6,3 +6,4 @@ class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     callback_url = "http://localhost:3000/login" # Should match frontend
     client_class = OAuth2Client
+    authentication_classes = []
