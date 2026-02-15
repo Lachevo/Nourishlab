@@ -57,9 +57,7 @@ const LabResultsPage: React.FC = () => {
         formData.append('file', file);
 
         try {
-            await api.post('/lab-results/', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            await api.post('/lab-results/', formData);
             setOpenDialog(false);
             resetForm();
             fetchResults();

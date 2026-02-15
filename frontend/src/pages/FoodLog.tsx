@@ -59,9 +59,7 @@ const FoodLogPage: React.FC = () => {
         }
 
         try {
-            await api.post('/food-logs/', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            await api.post('/food-logs/', formData);
             setOpenDialog(false);
             resetForm();
             fetchLogs();

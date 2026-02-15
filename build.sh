@@ -32,3 +32,8 @@ $PYTHON manage.py collectstatic --no-input
 
 echo "Running migrations..."
 $PYTHON manage.py migrate
+
+# Create media directories if they don't exist
+echo "Setting up media directories..."
+mkdir -p media/food_logs media/lab_results media/recipes media/progress_photos
+chmod -R 755 media
