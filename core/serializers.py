@@ -61,12 +61,14 @@ class FoodLogSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'user']
 
 class MessageSerializer(serializers.ModelSerializer):
-    sender = serializers.StringRelatedField(read_only=True)
+    sender = serializers.SlugRelatedField(read_only=True, slug_field='username')
     recipient = serializers.SlugRelatedField(slug_field='username', queryset=User.objects.all())
+    sender_name = serializers.CharField(source='sender.username', read_only=True)
+    recipient_name = serializers.CharField(source='recipient.username', read_only=True)
 
     class Meta:
         model = Message
-        fields = ['id', 'sender', 'recipient', 'content', 'timestamp', 'is_read']
+        fields = ['id', 'sender', 'sender_name', 'recipient', 'recipient_name', 'subject', 'content', 'timestamp', 'is_read']
         read_only_fields = ['sender', 'timestamp']
 
 class LabResultSerializer(serializers.ModelSerializer):

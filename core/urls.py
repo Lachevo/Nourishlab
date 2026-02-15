@@ -24,8 +24,8 @@ urlpatterns = [
     
     path('food-logs/', views.FoodLogViewSet.as_view(), name='food_logs'),
     path('messages/', views.MessageViewSet.as_view({'get': 'list', 'post': 'create'}), name='messages'),
-    path('messages/mark_read/', views.MessageViewSet.as_view({'post': 'mark_read'}), name='messages_mark_read'),
-    path('messages/conversations/', views.ConversationListView.as_view(), name='conversation_list'),
+    path('messages/mark_read/', views.MessageViewSet.as_view({'post': 'mark_conversation_read'}), name='messages_mark_read'),
+    # path('messages/conversations/', views.ConversationListView.as_view(), name='conversation_list'),
     path('nutritionists/', views.NutritionistView.as_view(), name='nutritionists'),
     path('lab-results/', views.LabResultViewSet.as_view(), name='lab_results'),
     

@@ -16,6 +16,7 @@ import {
     alpha,
     useTheme,
     Avatar,
+    Badge,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import logo from '../assets/logo.jpg';
@@ -61,6 +62,31 @@ const Layout: React.FC = () => {
         { text: 'Lab Results', icon: <ScienceIcon />, path: '/lab-results' },
         { text: 'Messages', icon: <ChatIcon />, path: '/messages' },
     ];
+
+    // Fetch unread messages count
+    const [unreadCount, setUnreadCount] = React.useState(0);
+
+    React.useEffect(() => {
+        const fetchUnreadCount = async () => {
+            if (!user) return;
+            try {
+                // We'll need an endpoint for this, or just fetch messages and count
+                // A lightweight endpoint for count would be better, but for now filtering messages is okay
+                // Assuming we can use the messages endpoint
+                // Note: We need to import api here.
+                const { default: api } = await import('../services/api');
+                const res = await api.get('/messages/?folder=inbox');
+                const count = res.data.filter((m: any) => !m.is_read).length;
+                setUnreadCount(count);
+            } catch (error) {
+                console.error("Failed to fetch unread count", error);
+            }
+        };
+
+        fetchUnreadCount();
+        const interval = setInterval(fetchUnreadCount, 60000); // Check every minute
+        return () => clearInterval(interval);
+    }, [user]);
 
     const drawer = (
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -112,7 +138,14 @@ const Layout: React.FC = () => {
                                         color: isActive ? 'primary.main' : 'text.secondary',
                                         transition: 'color 0.2s'
                                     }}>
-                                        {item.icon}
+                                        {/* Show badge only for Messages item */}
+                                        {item.text.includes('Messages') && unreadCount > 0 ? (
+                                            <Badge badgeContent={unreadCount} color="error" variant="dot">
+                                                {item.icon}
+                                            </Badge>
+                                        ) : (
+                                            item.icon
+                                        )}
                                     </ListItemIcon>
                                     <ListItemText
                                         primary={item.text}
@@ -121,7 +154,21 @@ const Layout: React.FC = () => {
                                             fontSize: '0.95rem'
                                         }}
                                     />
-                                    {isActive && (
+                                    {item.text.includes('Messages') && unreadCount > 0 && (
+                                        <Box sx={{
+                                            bgcolor: 'error.main',
+                                            color: 'white',
+                                            borderRadius: '10px',
+                                            px: 0.8,
+                                            py: 0.2,
+                                            fontSize: '0.75rem',
+                                            fontWeight: 'bold',
+                                            ml: 1
+                                        }}>
+                                            {unreadCount}
+                                        </Box>
+                                    )}
+                                    {isActive && !item.text.includes('Messages') && (
                                         <Box sx={{
                                             width: 4,
                                             height: 4,

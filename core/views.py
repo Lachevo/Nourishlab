@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, status, serializers, viewsets
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -163,6 +163,13 @@ class MessageViewSet(viewsets.ModelViewSet):
         from django.db.models import Q
         user = self.request.user
         
+        # Filter by folder (inbox/sent)
+        folder = self.request.query_params.get('folder')
+        if folder == 'sent':
+            return Message.objects.filter(sender=user).order_by('-timestamp')
+        elif folder == 'inbox':
+            return Message.objects.filter(recipient=user).order_by('-timestamp')
+            
         # If staff, they can filter by a recipient (client)
         client_username = self.request.query_params.get('client_username')
         if user.is_staff and client_username:
@@ -171,9 +178,28 @@ class MessageViewSet(viewsets.ModelViewSet):
                 (Q(recipient=user) & Q(sender__username=client_username))
             ).order_by('timestamp')
             
+        # Default: return all messages involved (for conversation view)
         return Message.objects.filter(
             Q(sender=user) | Q(recipient=user)
-        ).order_by('timestamp')
+        ).order_by('-timestamp')
+
+    @action(detail=False, methods=['post'])
+    def mark_conversation_read(self, request):
+        """
+        Mark all messages from a specific sender as read.
+        Expects 'sender_username' in request data.
+        """
+        sender_username = request.data.get('sender_username')
+        if not sender_username:
+            return Response({'error': 'sender_username is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        updated_count = Message.objects.filter(
+            sender__username=sender_username,
+            recipient=request.user,
+            is_read=False
+        ).update(is_read=True)
+        
+        return Response({'status': 'success', 'updated_count': updated_count})
 
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)

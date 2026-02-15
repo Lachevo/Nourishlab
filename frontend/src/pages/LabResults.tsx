@@ -48,6 +48,12 @@ const LabResultsPage: React.FC = () => {
         fetchResults();
     }, []);
 
+    const resetForm = () => {
+        setTitle('');
+        setDescription('');
+        setFile(null);
+    };
+
     const handleSubmit = async () => {
         if (!file || !title) return;
 
@@ -57,19 +63,17 @@ const LabResultsPage: React.FC = () => {
         formData.append('file', file);
 
         try {
-            await api.post('/lab-results/', formData);
+            await api.post('/lab-results/', formData, {
+                headers: {
+                    'Content-Type': undefined,
+                }
+            });
             setOpenDialog(false);
             resetForm();
             fetchResults();
         } catch (error) {
             console.error("Failed to upload info", error);
         }
-    };
-
-    const resetForm = () => {
-        setTitle('');
-        setDescription('');
-        setFile(null);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
