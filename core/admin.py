@@ -6,7 +6,7 @@ from django.utils.html import format_html
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import Profile, MealPlan, WeeklyUpdate, MealPlanTemplate, Recipe, Message, LabResult
+from .models import Profile, MealPlan, WeeklyUpdate, MealPlanTemplate, Recipe, Message, LabResult, FoodLog
 
 class AssignMealPlanForm(forms.Form):
     template = forms.ModelChoiceField(queryset=MealPlanTemplate.objects.all(), label="Select Meal Plan Template")
@@ -167,6 +167,22 @@ class UserAdmin(BaseUserAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('groups')
 
+@admin.register(FoodLog)
+class FoodLogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'date', 'meal_type', 'content_snippet', 'has_image')
+    list_filter = ('date', 'meal_type', 'user')
+    search_fields = ('user__username', 'content')
+    readonly_fields = ('created_at',)
+
+    def content_snippet(self, obj):
+        return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
+    content_snippet.short_description = 'Content'
+
+    def has_image(self, obj):
+        return bool(obj.image)
+    has_image.boolean = True
+    has_image.short_description = 'Image'
+
 @admin.register(WeeklyUpdate)
 class WeeklyUpdateAdmin(admin.ModelAdmin):
     list_display = ('user', 'date', 'current_weight')
@@ -255,5 +271,13 @@ class MessageAdmin(admin.ModelAdmin):
 
 @admin.register(LabResult)
 class LabResultAdmin(admin.ModelAdmin):
-    list_display = ('title', 'user', 'uploaded_at')
-    search_fields = ('title', 'user__username')
+    list_display = ('title', 'user', 'uploaded_at', 'view_file')
+    list_filter = ('uploaded_at', 'user')
+    search_fields = ('title', 'user__username', 'description')
+    readonly_fields = ('uploaded_at',)
+
+    def view_file(self, obj):
+        if obj.file:
+            return format_html('<a class="button" href="{}" target="_blank">View File</a>', obj.file.url)
+        return "No file"
+    view_file.short_description = 'Result'
