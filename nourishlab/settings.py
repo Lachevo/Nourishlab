@@ -20,6 +20,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load .env file
 load_dotenv(BASE_DIR / '.env')
 
+# --- Python 3.14 Compatibility Patch for Django Template Context ---
+import copy
+from django.template.context import BaseContext
+
+def _patched_copy(self):
+    try:
+        # Try original way (copying super())
+        # In Python 3.14 this raises AttributeError: 'super' object has no attribute 'dicts'
+        # We use the type-explicit super to be safe
+        duplicate = copy.copy(super(BaseContext, self))
+        duplicate.dicts = self.dicts[:]
+        return duplicate
+    except AttributeError:
+        # Fallback for Python 3.14 compatibility: manually create new instance
+        duplicate = self.__class__.__new__(self.__class__)
+        duplicate.dicts = self.dicts[:]
+        return duplicate
+
+BaseContext.__copy__ = _patched_copy
+# --- End of Patch ---
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
