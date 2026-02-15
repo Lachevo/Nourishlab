@@ -86,6 +86,10 @@ class FoodLog(models.Model):
     image = models.ImageField(upload_to='food_logs/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = "Food Journal Entry"
+        verbose_name_plural = "Food Journal"
+
     def __str__(self):
         return f"{self.user.username} - {self.meal_type} - {self.date}"
 
