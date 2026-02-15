@@ -33,6 +33,9 @@ $PYTHON manage.py collectstatic --no-input
 echo "Running migrations..."
 $PYTHON manage.py migrate
 
+echo "Creating default superuser if needed..."
+$PYTHON manage.py create_default_superuser
+
 # Create media directories if they don't exist
 echo "Setting up media directories..."
 mkdir -p media/food_logs media/lab_results media/recipes media/progress_photos
