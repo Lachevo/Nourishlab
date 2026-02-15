@@ -14,7 +14,7 @@ import {
     CircularProgress,
     Alert
 } from '@mui/material';
-import { Search, Person, CheckCircle, Pending, TrendingUp, TrendingDown } from '@mui/icons-material';
+import { Search, Person, CheckCircle, Pending, TrendingUp } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import type { User } from '../types';

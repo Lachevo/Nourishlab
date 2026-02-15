@@ -29,6 +29,7 @@ const Profile: React.FC = () => {
         dietary_prefs: '',
         allergies: '',
         is_approved: false,
+        is_nutritionist: false,
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);

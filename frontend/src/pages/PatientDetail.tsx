@@ -25,8 +25,7 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    TextField,
-    Divider
+    TextField
 } from '@mui/material';
 import {
     ArrowBack,

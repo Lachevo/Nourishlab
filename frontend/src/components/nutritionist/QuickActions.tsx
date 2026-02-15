@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, Typography, Box, Button, Grid } from '@mui/material';
-import { Add, Person, Restaurant, Science, TrendingUp } from '@mui/icons-material';
+import { Card, CardContent, Typography, Button, Grid } from '@mui/material';
+import { Add, Person, Science, TrendingUp } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const QuickActions: React.FC = () => {
