@@ -25,18 +25,13 @@ import copy
 from django.template.context import BaseContext
 
 def _patched_copy(self):
-    try:
-        # Try original way (copying super())
-        # In Python 3.14 this raises AttributeError: 'super' object has no attribute 'dicts'
-        # We use the type-explicit super to be safe
-        duplicate = copy.copy(super(BaseContext, self))
-        duplicate.dicts = self.dicts[:]
-        return duplicate
-    except AttributeError:
-        # Fallback for Python 3.14 compatibility: manually create new instance
-        duplicate = self.__class__.__new__(self.__class__)
-        duplicate.dicts = self.dicts[:]
-        return duplicate
+    # Fallback for Python 3.14 compatibility: manually create new instance
+    # and copy all attributes. This avoids broken copy.copy(super()) in 3.14.
+    duplicate = self.__class__.__new__(self.__class__)
+    duplicate.__dict__.update(self.__dict__)
+    # Perform the specific dicts copy that Django expects
+    duplicate.dicts = self.dicts[:]
+    return duplicate
 
 BaseContext.__copy__ = _patched_copy
 print("--- Python 3.14 Compatibility Patch Applied ---")
