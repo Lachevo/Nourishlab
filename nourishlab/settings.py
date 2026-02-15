@@ -39,6 +39,7 @@ def _patched_copy(self):
         return duplicate
 
 BaseContext.__copy__ = _patched_copy
+print("--- Python 3.14 Compatibility Patch Applied ---")
 # --- End of Patch ---
 
 
