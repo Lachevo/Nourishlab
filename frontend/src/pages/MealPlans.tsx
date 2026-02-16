@@ -217,6 +217,37 @@ const MealPlans: React.FC = () => {
                                         }}
                                     />
 
+                                    {/* Image-based Meal Plan Display */}
+                                    {plan.file && (plan.file.toLowerCase().endsWith('.jpg') || plan.file.toLowerCase().endsWith('.jpeg') || plan.file.toLowerCase().endsWith('.png') || plan.file.toLowerCase().endsWith('.gif') || plan.file.toLowerCase().endsWith('.webp')) && (
+                                        <Box sx={{ mb: 4, textAlign: 'center' }}>
+                                            <Typography variant="h6" gutterBottom color="primary">
+                                                Meal Plan Image
+                                            </Typography>
+                                            <Box
+                                                component="img"
+                                                src={plan.file}
+                                                alt="Meal Plan"
+                                                sx={{
+                                                    maxWidth: '100%',
+                                                    maxHeight: 600,
+                                                    borderRadius: 2,
+                                                    boxShadow: 3,
+                                                    mb: 2
+                                                }}
+                                            />
+                                            <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                href={plan.file}
+                                                download
+                                                target="_blank"
+                                                startIcon={<ImageIcon />}
+                                            >
+                                                Download Image Plan
+                                            </Button>
+                                        </Box>
+                                    )}
+
                                     <Box sx={{ mt: 6, pt: 3, borderTop: `1px dashed ${theme.palette.divider}`, textAlign: 'center' }}>
                                         <Typography variant="caption" color="textSecondary" sx={{ fontStyle: 'italic' }}>
                                             Adjust portions based on your hunger levels and progress. Stay hydrated!

@@ -300,6 +300,7 @@ const WeeklyUpdates: React.FC = () => {
                                     <TableCell>Weight</TableCell>
                                     <TableCell>Measurements</TableCell>
                                     <TableCell>Compliance</TableCell>
+                                    <TableCell>Photos</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -313,6 +314,17 @@ const WeeklyUpdates: React.FC = () => {
                                             {u.chest_cm && `C: ${u.chest_cm}`}
                                         </TableCell>
                                         <TableCell>{u.compliance_score || 0}%</TableCell>
+                                        <TableCell>
+                                            {u.photo_front && (
+                                                <a href={u.photo_front} target="_blank" rel="noopener noreferrer">
+                                                    <Avatar
+                                                        src={u.photo_front}
+                                                        variant="rounded"
+                                                        sx={{ width: 40, height: 40, border: '1px solid #eee' }}
+                                                    />
+                                                </a>
+                                            )}
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

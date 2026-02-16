@@ -368,6 +368,7 @@ const PatientDetail: React.FC = () => {
                                         <TableCell>Weight (kg)</TableCell>
                                         <TableCell>Energy Level</TableCell>
                                         <TableCell>Compliance</TableCell>
+                                        <TableCell>Photos</TableCell>
                                         <TableCell>Notes</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -378,6 +379,17 @@ const PatientDetail: React.FC = () => {
                                             <TableCell>{update.current_weight}</TableCell>
                                             <TableCell>{update.energy_level || 'N/A'}</TableCell>
                                             <TableCell>{update.compliance_score ? `${update.compliance_score}%` : 'N/A'}</TableCell>
+                                            <TableCell>
+                                                {update.photo_front && (
+                                                    <a href={update.photo_front} target="_blank" rel="noopener noreferrer">
+                                                        <Avatar
+                                                            src={update.photo_front}
+                                                            variant="rounded"
+                                                            sx={{ width: 40, height: 40, border: '1px solid #eee' }}
+                                                        />
+                                                    </a>
+                                                )}
+                                            </TableCell>
                                             <TableCell>{update.notes || '-'}</TableCell>
                                         </TableRow>
                                     ))}

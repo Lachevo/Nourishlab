@@ -39,6 +39,7 @@ export interface MealPlan {
     end_date: string;
     content?: string; // Legacy
     structured_plan?: any; // JSON structure { "Monday": { "Breakfast": recipeId... } }
+    file?: string;
     created_at: string;
 }
 

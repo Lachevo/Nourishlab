@@ -65,7 +65,7 @@ const CreateMealPlan: React.FC = () => {
         }
 
         if (!mealPlan.content && !selectedFile) {
-            setError('Please provide either meal plan content or upload a file');
+            setError('Please provide either meal plan text content or upload a file (PDF/Image)');
             return;
         }
 
