@@ -56,22 +56,26 @@ class NutritionistPatientDetailView(generics.RetrieveAPIView):
         # Add related data
         patient_data['meal_plans'] = MealPlanSerializer(
             patient.meal_plans.all().order_by('-start_date'), 
-            many=True
+            many=True,
+            context={'request': request}
         ).data
         
         patient_data['weekly_updates'] = WeeklyUpdateSerializer(
             patient.weekly_updates.all().order_by('-date')[:10], 
-            many=True
+            many=True,
+            context={'request': request}
         ).data
         
         patient_data['food_logs'] = FoodLogSerializer(
             patient.food_logs.all().order_by('-date')[:20], 
-            many=True
+            many=True,
+            context={'request': request}
         ).data
         
         patient_data['lab_results'] = LabResultSerializer(
             patient.lab_results.all().order_by('-uploaded_at'), 
-            many=True
+            many=True,
+            context={'request': request}
         ).data
         
         return Response(patient_data)
