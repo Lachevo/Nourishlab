@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import type { MealPlan } from '../types';
+import { getMediaUrl } from '../utils';
 import DOMPurify from 'dompurify';
 import {
     Container,
@@ -225,7 +226,7 @@ const MealPlans: React.FC = () => {
                                             </Typography>
                                             <Box
                                                 component="img"
-                                                src={plan.file}
+                                                src={getMediaUrl(plan.file)}
                                                 alt="Meal Plan"
                                                 sx={{
                                                     maxWidth: '100%',
@@ -236,9 +237,10 @@ const MealPlans: React.FC = () => {
                                                 }}
                                             />
                                             <Button
+                                                component="a"
                                                 variant="contained"
                                                 color="secondary"
-                                                href={plan.file}
+                                                href={getMediaUrl(plan.file)}
                                                 download
                                                 target="_blank"
                                                 startIcon={<ImageIcon />}

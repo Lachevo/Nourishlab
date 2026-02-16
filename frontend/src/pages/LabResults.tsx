@@ -13,7 +13,6 @@ import {
     DialogContent,
     DialogActions,
     List,
-    Link,
     CircularProgress
 } from '@mui/material';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -21,6 +20,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DownloadIcon from '@mui/icons-material/Download';
 import api from '../services/api';
 import type { LabResult } from '../types';
+import { getMediaUrl } from '../utils';
 
 const LabResultsPage: React.FC = () => {
     const [results, setResults] = useState<LabResult[]>([]);
@@ -122,8 +122,8 @@ const LabResultsPage: React.FC = () => {
                                     </Box>
                                 </Box>
                                 <Button
-                                    component={Link}
-                                    href={result.file}
+                                    component="a"
+                                    href={getMediaUrl(result.file)}
                                     target="_blank"
                                     startIcon={<DownloadIcon />}
                                     variant="outlined"

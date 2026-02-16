@@ -38,6 +38,7 @@ import {
 } from '@mui/icons-material';
 import api from '../services/api';
 import type { User, MealPlan, WeeklyUpdate, FoodLog, LabResult } from '../types';
+import { getMediaUrl } from '../utils';
 import ProgressChart from '../components/nutritionist/ProgressChart';
 
 interface PatientDetailData extends User {
@@ -381,9 +382,9 @@ const PatientDetail: React.FC = () => {
                                             <TableCell>{update.compliance_score ? `${update.compliance_score}%` : 'N/A'}</TableCell>
                                             <TableCell>
                                                 {update.photo_front && (
-                                                    <a href={update.photo_front} target="_blank" rel="noopener noreferrer">
+                                                    <a href={getMediaUrl(update.photo_front)} target="_blank" rel="noopener noreferrer">
                                                         <Avatar
-                                                            src={update.photo_front}
+                                                            src={getMediaUrl(update.photo_front)}
                                                             variant="rounded"
                                                             sx={{ width: 40, height: 40, border: '1px solid #eee' }}
                                                         />
@@ -427,7 +428,7 @@ const PatientDetail: React.FC = () => {
                                             {log.image && (
                                                 <Box mt={2}>
                                                     <img
-                                                        src={log.image}
+                                                        src={getMediaUrl(log.image)}
                                                         alt={log.meal_type}
                                                         style={{ width: '100%', borderRadius: 8 }}
                                                     />
@@ -471,10 +472,11 @@ const PatientDetail: React.FC = () => {
                                                 Uploaded: {new Date(result.uploaded_at).toLocaleDateString()}
                                             </Typography>
                                             <Button
+                                                component="a"
                                                 variant="outlined"
                                                 size="small"
                                                 sx={{ mt: 2 }}
-                                                href={result.file}
+                                                href={getMediaUrl(result.file)}
                                                 target="_blank"
                                             >
                                                 View File

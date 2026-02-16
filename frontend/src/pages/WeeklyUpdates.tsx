@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import type { WeeklyUpdate } from '../types';
+import { getMediaUrl } from '../utils';
 import {
     Container,
     Typography,
@@ -316,9 +317,9 @@ const WeeklyUpdates: React.FC = () => {
                                         <TableCell>{u.compliance_score || 0}%</TableCell>
                                         <TableCell>
                                             {u.photo_front && (
-                                                <a href={u.photo_front} target="_blank" rel="noopener noreferrer">
+                                                <a href={getMediaUrl(u.photo_front)} target="_blank" rel="noopener noreferrer">
                                                     <Avatar
-                                                        src={u.photo_front}
+                                                        src={getMediaUrl(u.photo_front)}
                                                         variant="rounded"
                                                         sx={{ width: 40, height: 40, border: '1px solid #eee' }}
                                                     />

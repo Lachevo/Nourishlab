@@ -20,6 +20,7 @@ import {
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import api from '../services/api';
 import type { FoodLog } from '../types';
+import { getMediaUrl } from '../utils';
 
 const FoodLogPage: React.FC = () => {
     const theme = useTheme();
@@ -108,7 +109,7 @@ const FoodLogPage: React.FC = () => {
                             {log.image && (
                                 <Box
                                     component="img"
-                                    src={log.image}
+                                    src={getMediaUrl(log.image)}
                                     sx={{ height: 200, objectFit: 'cover', width: '100%' }}
                                 />
                             )}

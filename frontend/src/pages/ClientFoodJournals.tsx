@@ -16,6 +16,7 @@ import {
 import { Search, LocalDining } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { getMediaUrl } from '../utils';
 
 interface FoodLog {
     id: number;
@@ -204,7 +205,7 @@ const ClientFoodJournals: React.FC = () => {
                                     {log.image && (
                                         <Box
                                             component="img"
-                                            src={log.image}
+                                            src={getMediaUrl(log.image)}
                                             alt={log.meal_type}
                                             sx={{
                                                 width: '100%',

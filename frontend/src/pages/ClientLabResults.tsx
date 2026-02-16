@@ -17,6 +17,7 @@ import {
 import { Search, Science, Download } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { getMediaUrl } from '../utils';
 
 interface LabResult {
     id: number;
@@ -209,10 +210,11 @@ const ClientLabResults: React.FC = () => {
 
                                     <Box display="flex" gap={1}>
                                         <Button
+                                            component="a"
                                             variant="outlined"
                                             size="small"
                                             startIcon={<Download />}
-                                            href={result.file}
+                                            href={getMediaUrl(result.file)}
                                             target="_blank"
                                             onClick={(e) => e.stopPropagation()}
                                             fullWidth

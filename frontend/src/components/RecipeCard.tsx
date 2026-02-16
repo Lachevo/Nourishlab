@@ -3,6 +3,7 @@ import { Card, CardMedia, CardContent, Typography, Box, Chip, alpha, useTheme } 
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import type { Recipe } from '../types';
+import { getMediaUrl } from '../utils';
 
 interface RecipeCardProps {
     recipe: Recipe;
@@ -31,7 +32,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onClick }) => {
                 <CardMedia
                     component="img"
                     height="180"
-                    image={recipe.image}
+                    image={getMediaUrl(recipe.image)}
                     alt={recipe.title}
                 />
             )}
