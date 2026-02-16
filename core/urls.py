@@ -31,6 +31,8 @@ urlpatterns = [
     
     # Nutritionist-specific endpoints
     path('nutritionist/patients/', nutritionist_views.NutritionistPatientListView.as_view(), name='nutritionist_patients'),
+    path('nutritionist/pending-patients/', nutritionist_views.NutritionistPendingPatientsListView.as_view(), name='nutritionist_pending_patients'),
+    path('nutritionist/approve-patient/<int:patient_id>/', nutritionist_views.ApprovePatientView.as_view(), name='approve_patient'),
     path('nutritionist/patients/<int:pk>/', nutritionist_views.NutritionistPatientDetailView.as_view(), name='nutritionist_patient_detail'),
     path('nutritionist/patients/<int:patient_id>/progress/', nutritionist_views.NutritionistPatientProgressView.as_view(), name='nutritionist_patient_progress'),
     path('nutritionist/meal-plans/', nutritionist_views.NutritionistMealPlanViewSet.as_view({'get': 'list', 'post': 'create'}), name='nutritionist_meal_plans'),

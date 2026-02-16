@@ -153,9 +153,24 @@ const Messages: React.FC = () => {
 
     const handlePartnerSelect = (partner: string) => {
         setSelectedPartner(partner);
-        // Mark messages as read? We need an endpoint for marking specific conversation as read
-        // For now, let's just mark individual messages as read on backend if we had an endpoint
-        // or just leave it. The "mark all read" endpoint exists.
+        markConversationRead(partner);
+    };
+
+    const markConversationRead = async (partner: string) => {
+        try {
+            await api.post('/messages/mark_read/', { sender_username: partner });
+            // Update local state
+            const updatedMessages = messages.map(msg =>
+                msg.sender === partner && !msg.is_read ? { ...msg, is_read: true } : msg
+            );
+            setMessages(updatedMessages);
+            organizeConversations(updatedMessages);
+
+            // Trigger layout refresh
+            window.dispatchEvent(new CustomEvent('messagesRead'));
+        } catch (err) {
+            console.error('Failed to mark conversation as read', err);
+        }
     };
 
     // Filter messages for selected conversation

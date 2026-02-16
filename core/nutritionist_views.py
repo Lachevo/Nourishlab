@@ -24,8 +24,41 @@ class NutritionistPatientListView(generics.ListAPIView):
         # Return all users who are not nutritionists and not staff
         return User.objects.filter(
             profile__is_nutritionist=False,
+            profile__is_approved=True,
             is_staff=False
         ).select_related('profile').order_by('username')
+
+
+class NutritionistPendingPatientsListView(generics.ListAPIView):
+    """
+    List all pending (unapproved) patients for the nutritionist.
+    """
+    serializer_class = UserSerializer
+    permission_classes = [IsNutritionist]
+
+    def get_queryset(self):
+        return User.objects.filter(
+            profile__is_nutritionist=False,
+            profile__is_approved=False,
+            is_staff=False
+        ).select_related('profile').order_by('-date_joined')
+
+
+class ApprovePatientView(APIView):
+    """
+    Approve a pending patient.
+    """
+    permission_classes = [IsNutritionist]
+
+    def post(self, request, patient_id):
+        try:
+            patient = User.objects.get(id=patient_id, profile__is_nutritionist=False)
+            profile = patient.profile
+            profile.is_approved = True
+            profile.save()
+            return Response({'status': 'Patient approved successfully'}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'Patient not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class NutritionistPatientDetailView(generics.RetrieveAPIView):

@@ -15,7 +15,9 @@ import {
     DialogActions,
     useTheme,
     alpha,
-    CircularProgress
+    CircularProgress,
+    Alert,
+    Snackbar
 } from '@mui/material';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import api from '../services/api';
@@ -27,6 +29,9 @@ const FoodLogPage: React.FC = () => {
     const [logs, setLogs] = useState<FoodLog[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState(false);
 
     // Form state
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -51,6 +56,14 @@ const FoodLogPage: React.FC = () => {
     }, []);
 
     const handleSubmit = async () => {
+        if (!content.trim()) {
+            setError('Please describe what you ate');
+            return;
+        }
+
+        setSubmitting(true);
+        setError('');
+
         const formData = new FormData();
         formData.append('date', date);
         formData.append('meal_type', mealType);
@@ -60,12 +73,18 @@ const FoodLogPage: React.FC = () => {
         }
 
         try {
-            await api.post('/food-logs/', formData);
+            await api.post('/food-logs/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setSuccess(true);
             setOpenDialog(false);
             resetForm();
             fetchLogs();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to submit log", error);
+            setError(error.response?.data?.detail || error.response?.data?.error || 'Failed to submit log. Please try again.');
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -137,6 +156,7 @@ const FoodLogPage: React.FC = () => {
             <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
                 <DialogTitle>Log a Meal</DialogTitle>
                 <DialogContent>
+                    {error && <Alert severity="error" sx={{ mb: 2, mt: 1 }}>{error}</Alert>}
                     <Grid container spacing={2} sx={{ mt: 1 }}>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <TextField
@@ -193,10 +213,23 @@ const FoodLogPage: React.FC = () => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-                    <Button onClick={handleSubmit} variant="contained">Save Log</Button>
+                    <Button onClick={() => setOpenDialog(false)} disabled={submitting}>Cancel</Button>
+                    <Button onClick={handleSubmit} variant="contained" disabled={submitting}>
+                        {submitting ? <CircularProgress size={24} /> : 'Save Log'}
+                    </Button>
                 </DialogActions>
             </Dialog>
+
+            <Snackbar
+                open={success}
+                autoHideDuration={6000}
+                onClose={() => setSuccess(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setSuccess(false)} severity="success" sx={{ width: '100%' }}>
+                    Meal logged successfully!
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };

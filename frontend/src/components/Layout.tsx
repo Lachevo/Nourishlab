@@ -19,6 +19,7 @@ import {
     Badge,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import CheckCircle from '@mui/icons-material/CheckCircle';
 import logo from '../assets/logo.jpg';
 import PersonIcon from '@mui/icons-material/Person';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
@@ -47,6 +48,7 @@ const Layout: React.FC = () => {
     // Different menu items for nutritionists vs regular users
     const menuItems = user?.profile?.is_nutritionist ? [
         { text: 'Nutritionist Dashboard', icon: <DashboardIcon />, path: '/nutritionist' },
+        { text: 'Pending Approvals', icon: <CheckCircle sx={{ color: 'warning.main' }} />, path: '/nutritionist/approvals' },
         { text: 'Profile', icon: <PersonIcon />, path: '/profile' },
         { text: 'Create Meal Plan', icon: <RestaurantMenuIcon />, path: '/nutritionist/create-meal-plan' },
         { text: 'Client Weekly Updates', icon: <TrendingUpIcon />, path: '/nutritionist/weekly-updates' },
@@ -84,8 +86,15 @@ const Layout: React.FC = () => {
         };
 
         fetchUnreadCount();
+
+        // Listen for custom event from Messages page
+        window.addEventListener('messagesRead', fetchUnreadCount);
+
         const interval = setInterval(fetchUnreadCount, 60000); // Check every minute
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('messagesRead', fetchUnreadCount);
+        };
     }, [user]);
 
     const drawer = (

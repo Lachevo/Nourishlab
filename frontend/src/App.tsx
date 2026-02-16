@@ -21,6 +21,7 @@ import ClientWeeklyUpdates from './pages/ClientWeeklyUpdates';
 import ClientFoodJournals from './pages/ClientFoodJournals';
 import ClientLabResults from './pages/ClientLabResults';
 import CreateMealPlan from './pages/CreateMealPlan';
+import PendingApprovals from './pages/PendingApprovals';
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
             <Route path="/nutritionist/weekly-updates" element={<ClientWeeklyUpdates />} />
             <Route path="/nutritionist/food-journals" element={<ClientFoodJournals />} />
             <Route path="/nutritionist/lab-results" element={<ClientLabResults />} />
+            <Route path="/nutritionist/approvals" element={<PendingApprovals />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

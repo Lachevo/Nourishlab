@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Typography, Button, Grid } from '@mui/material';
-import { Add, Person, Science, TrendingUp } from '@mui/icons-material';
+import { Add, Science, TrendingUp, CheckCircle, Fastfood, Chat } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const QuickActions: React.FC = () => {
@@ -8,31 +8,40 @@ const QuickActions: React.FC = () => {
 
     const actions = [
         {
-            icon: <Person />,
-            label: 'View All Patients',
-            color: '#667eea',
-            action: () => navigate('/nutritionist')
+            icon: <CheckCircle />,
+            label: 'Pending Approvals',
+            color: '#f5576c',
+            action: () => navigate('/nutritionist/approvals')
         },
         {
             icon: <Add />,
             label: 'Create Meal Plan',
             color: '#43e97b',
-            action: () => {
-                // This will be handled by selecting a patient first
-                alert('Please select a patient to create a meal plan');
-            }
+            action: () => navigate('/nutritionist/create-meal-plan')
         },
         {
             icon: <TrendingUp />,
-            label: 'View Progress',
+            label: 'Client Updates',
             color: '#f093fb',
-            action: () => navigate('/nutritionist')
+            action: () => navigate('/nutritionist/weekly-updates')
+        },
+        {
+            icon: <Fastfood />,
+            label: 'Food Journals',
+            color: '#fa709a',
+            action: () => navigate('/nutritionist/food-journals')
         },
         {
             icon: <Science />,
             label: 'Lab Results',
             color: '#4facfe',
-            action: () => navigate('/nutritionist')
+            action: () => navigate('/nutritionist/lab-results')
+        },
+        {
+            icon: <Chat />,
+            label: 'Messages',
+            color: '#667eea',
+            action: () => navigate('/messages')
         }
     ];
 
