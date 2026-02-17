@@ -24,6 +24,8 @@ class Command(BaseCommand):
         client_id = os.environ.get('GOOGLE_CLIENT_ID')
         client_secret = os.environ.get('GOOGLE_CLIENT_SECRET')
 
+        self.stdout.write(f"DEBUG: GOOGLE_CLIENT_ID found: {'Yes' if client_id else 'No'}")
+        
         if not client_id or 'YOUR_GOOGLE_CLIENT_ID' in client_id:
             self.stdout.write(self.style.WARNING('GOOGLE_CLIENT_ID is missing or using placeholder. Setup skipped for SocialApp.'))
             return
@@ -41,7 +43,7 @@ class Command(BaseCommand):
             app.client_id = client_id
             app.secret = client_secret
             app.save()
-            self.stdout.write(self.style.SUCCESS('Successfully updated existing SocialApp'))
+            self.stdout.write(self.style.SUCCESS(f'Successfully updated existing SocialApp with ID: {client_id[:10]}...'))
         else:
             app.sites.add(site)
-            self.stdout.write(self.style.SUCCESS('Successfully created and linked SocialApp'))
+            self.stdout.write(self.style.SUCCESS(f'Successfully created and linked SocialApp with ID: {client_id[:10]}...'))
