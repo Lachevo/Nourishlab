@@ -36,6 +36,9 @@ $PYTHON manage.py migrate
 echo "Creating default superuser if needed..."
 $PYTHON manage.py create_default_superuser
 
+echo "Setting up Google Social Auth..."
+$PYTHON manage.py setup_social_auth
+
 # Create media directories if they don't exist
 echo "Setting up media directories..."
 mkdir -p media/food_logs media/lab_results media/recipes media/progress_photos
