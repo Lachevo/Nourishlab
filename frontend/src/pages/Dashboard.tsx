@@ -34,7 +34,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import type { User, MealPlan, FoodLog, Message } from '../types';
+import type { MealPlan, FoodLog, Message } from '../types';
 
 ChartJS.register(
     CategoryScale,
