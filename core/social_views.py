@@ -40,12 +40,17 @@ class GoogleLogin(SocialLoginView):
             return response
         except Exception as e:
             error_msg = str(e)
+            import traceback
+            tb = traceback.format_exc()
             with open("/tmp/google_auth_debug.log", "a") as f:
-                f.write(f"DEBUG: GoogleLogin error: {error_msg}\n")
-                import traceback
-                traceback.print_exc(file=f)
+                f.write(f"DEBUG: GoogleLogin EXCEPTION: {error_msg}\n")
+                f.write(f"DEBUG: Traceback: {tb}\n")
+            
+            # Print to stdout too so it shows in Render logs
+            print(f"DEBUG GoogleLogin failed: {error_msg}")
+            print(f"DEBUG Traceback: {tb}")
             
             return Response(
-                {"detail": error_msg},
+                {"detail": error_msg, "traceback": tb if os.environ.get('DEBUG') == 'True' else None},
                 status=status.HTTP_400_BAD_REQUEST
             )

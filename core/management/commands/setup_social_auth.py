@@ -7,10 +7,12 @@ class Command(BaseCommand):
     help = 'Setup Social Application and Site for Google Auth'
 
     def handle(self, *args, **options):
-        # Determine current domain
+        # Determine current domain (DO NOT include https:// here for Site model)
         render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-        domain = f"https://{render_host}" if render_host else "localhost:5174"
+        domain = render_host if render_host else "localhost:5174"
         name = "NourishLab (Prod)" if render_host else "NourishLab (Local)"
+
+        self.stdout.write(f"DEBUG: Setting up Site with domain: {domain}")
 
         # Setup Site
         site, created = Site.objects.get_or_create(id=1, defaults={'domain': domain, 'name': name})
