@@ -1,13 +1,14 @@
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+import os
 from rest_framework import status
 from rest_framework.response import Response
 from .serializers import UserSerializer
 
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
-    callback_url = "http://localhost:5174/login"
+    callback_url = os.environ.get("GOOGLE_CALLBACK_URL", "http://localhost:5174/login")
     client_class = OAuth2Client
     
     def post(self, request, *args, **kwargs):
