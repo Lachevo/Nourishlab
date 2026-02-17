@@ -29,6 +29,17 @@ class GoogleLogin(SocialLoginView):
             else:
                 request.data['access_token'] = request.data['id_token']
 
+        # Log info for debugging SocialApp issue
+        from django.contrib.sites.models import Site
+        from allauth.socialaccount.models import SocialApp
+        try:
+            current_site = Site.objects.get_current(request)
+            apps = SocialApp.objects.filter(provider='google', sites=current_site)
+            print(f"DEBUG: Current Site ID: {current_site.id}, Domain: {current_site.domain}")
+            print(f"DEBUG: Linked Google SocialApps count: {apps.count()}")
+        except Exception as se:
+            print(f"DEBUG: Error checking Site/App: {str(se)}")
+
         try:
             response = super().post(request, *args, **kwargs)
             if response.status_code == status.HTTP_200_OK:

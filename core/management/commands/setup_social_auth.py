@@ -46,6 +46,10 @@ class Command(BaseCommand):
             app.secret = client_secret
             app.save()
             self.stdout.write(self.style.SUCCESS(f'Successfully updated existing SocialApp with ID: {client_id[:10]}...'))
-        else:
+        
+        # ALWAYS ensure it is linked to the site
+        if not app.sites.filter(id=site.id).exists():
             app.sites.add(site)
-            self.stdout.write(self.style.SUCCESS(f'Successfully created and linked SocialApp with ID: {client_id[:10]}...'))
+            self.stdout.write(self.style.SUCCESS(f'Linked SocialApp to Site: {site.domain}'))
+        else:
+            self.stdout.write(self.style.SUCCESS(f'SocialApp already linked to Site: {site.domain}'))
