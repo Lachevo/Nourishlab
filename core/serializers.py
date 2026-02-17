@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import Profile, MealPlan, WeeklyUpdate, Recipe, MealPlanTemplate, FoodLog, Message, LabResult, NutritionistNote
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -29,7 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'profile', 'is_staff']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password', 'profile', 'is_staff']
 
     def create(self, validated_data):
         return User.objects.create_user(
@@ -37,6 +38,14 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data.get('email', ''),
             password=validated_data['password']
         )
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        # Add extra user data
+        serializer = UserSerializer(self.user)
+        data['user'] = serializer.data
+        return data
 
 class RecipeSerializer(serializers.ModelSerializer):
     class Meta:

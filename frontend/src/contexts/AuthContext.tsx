@@ -5,8 +5,9 @@ import type { User } from '../types';
 interface AuthContextType {
     isAuthenticated: boolean;
     user: User | null;
-    login: (access: string, refresh: string) => void;
+    login: (access: string, refresh: string, userData?: User) => void;
     logout: () => void;
+    refreshUser: () => Promise<void>;
     loading: boolean;
 }
 
@@ -40,12 +41,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         initializeAuth();
     }, []);
 
-    const login = async (access: string, refresh: string) => {
+    const login = async (access: string, refresh: string, userData?: User) => {
         localStorage.setItem('accessToken', access);
         localStorage.setItem('refreshToken', refresh);
         setIsAuthenticated(true);
         api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
-        await fetchUser();
+
+        if (userData) {
+            setUser(userData);
+        } else {
+            await fetchUser();
+        }
     };
 
     const logout = () => {
@@ -57,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, user, login, logout, loading }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, login, logout, refreshUser: fetchUser, loading }}>
             {children}
         </AuthContext.Provider>
     );

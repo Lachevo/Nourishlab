@@ -14,17 +14,15 @@ import {
     StepLabel,
     alpha,
     useTheme,
-    InputAdornment,
-    Stack,
-    Autocomplete,
     Chip,
     FormControl,
     FormLabel,
+    Grid,
+    Stack,
+    Autocomplete,
 } from '@mui/material';
+import { useAuth } from '../contexts/AuthContext';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import HeightIcon from '@mui/icons-material/Height';
-import MonitorWeightIcon from '@mui/icons-material/MonitorWeight';
-import CakeIcon from '@mui/icons-material/Cake';
 import logo from '../assets/logo.jpg';
 
 const steps = ['Personal Details', 'Goals & Preferences'];
@@ -60,13 +58,17 @@ const COMMON_ALLERGIES = [
 ];
 
 const CompleteProfile: React.FC = () => {
+    const { refreshUser } = useAuth();
     const theme = useTheme();
     const navigate = useNavigate();
     const [activeStep, setActiveStep] = useState(0);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Step 1: Personal Details
+    // Step 1: Account & Personal Details
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [username, setUsername] = useState('');
     const [age, setAge] = useState('');
     const [height, setHeight] = useState('');
     const [weight, setWeight] = useState('');
@@ -78,9 +80,27 @@ const CompleteProfile: React.FC = () => {
     const [selectedAllergies, setSelectedAllergies] = useState<string[]>([]);
     const [customAllergy, setCustomAllergy] = useState('');
 
+    // Load initial data (e.g. username from social login)
+    React.useEffect(() => {
+        const fetchInitialData = async () => {
+            try {
+                const response = await api.get('/profile/');
+                setUsername(response.data.username || '');
+                setFirstName(response.data.first_name || '');
+                setLastName(response.data.last_name || '');
+                if (response.data.profile?.age) setAge(response.data.profile.age.toString());
+                if (response.data.profile?.height) setHeight(response.data.profile.height.toString());
+                if (response.data.profile?.weight) setWeight(response.data.profile.weight.toString());
+            } catch (err) {
+                console.error('Failed to load initial data', err);
+            }
+        };
+        fetchInitialData();
+    }, []);
+
     const validateStep1 = () => {
-        if (!age || !height || !weight) {
-            setError('Please fill in all personal details');
+        if (!firstName || !lastName || !username || !age || !height || !weight) {
+            setError('Please fill in all personal and account details');
             return false;
         }
 
@@ -153,6 +173,9 @@ const CompleteProfile: React.FC = () => {
             const allergiesString = allergiesArray.filter(a => a !== 'Other').join(', ');
 
             await api.put('/profile/', {
+                first_name: firstName.trim(),
+                last_name: lastName.trim(),
+                username: username.trim(),
                 age: parseInt(age),
                 height: parseFloat(height),
                 weight: parseFloat(weight),
@@ -161,11 +184,16 @@ const CompleteProfile: React.FC = () => {
                 allergies: allergiesString,
             });
 
-            // Redirect to pending approval or dashboard
+            // Refetch user data in context so ProtectedRoute is aware of the update
+            await refreshUser();
+
+            // Redirect to pending approval
             navigate('/pending-approval');
         } catch (err: any) {
             console.error(err);
-            const errorMsg = err.response?.data?.detail || 'Failed to save profile. Please try again.';
+            const errorMsg = err.response?.data?.username?.[0] ||
+                err.response?.data?.detail ||
+                'Failed to save profile. Please try again.';
             setError(errorMsg);
         } finally {
             setLoading(false);
@@ -177,72 +205,80 @@ const CompleteProfile: React.FC = () => {
             case 0:
                 return (
                     <Box>
-                        <Typography variant="h6" fontWeight={700} gutterBottom>
-                            Tell us about yourself
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary" sx={{ mb: 4 }}>
-                            This information helps us create personalized nutrition plans for you.
-                        </Typography>
-
                         <Stack spacing={3}>
+                            <Box>
+                                <Typography variant="subtitle2" color="primary" fontWeight={600} gutterBottom>
+                                    Account Details
+                                </Typography>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                    <TextField
+                                        fullWidth
+                                        label="First Name"
+                                        value={firstName}
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                        placeholder="John"
+                                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        label="Last Name"
+                                        value={lastName}
+                                        onChange={(e) => setLastName(e.target.value)}
+                                        placeholder="Doe"
+                                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                    />
+                                </Stack>
+                            </Box>
                             <TextField
                                 fullWidth
-                                label="Age"
-                                type="number"
-                                value={age}
-                                onChange={(e) => setAge(e.target.value)}
-                                placeholder="e.g., 25"
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <CakeIcon color="primary" />
-                                        </InputAdornment>
-                                    ),
-                                }}
+                                label="Username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="johndoe"
+                                helperText="This is your unique handle in the app"
                                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                             />
-                            <TextField
-                                fullWidth
-                                label="Height"
-                                type="number"
-                                value={height}
-                                onChange={(e) => setHeight(e.target.value)}
-                                placeholder="e.g., 170"
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <HeightIcon color="primary" />
-                                        </InputAdornment>
-                                    ),
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <Typography variant="body2" color="textSecondary">cm</Typography>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                            />
-                            <TextField
-                                fullWidth
-                                label="Current Weight"
-                                type="number"
-                                value={weight}
-                                onChange={(e) => setWeight(e.target.value)}
-                                placeholder="e.g., 70"
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <MonitorWeightIcon color="primary" />
-                                        </InputAdornment>
-                                    ),
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <Typography variant="body2" color="textSecondary">kg</Typography>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                            />
+
+                            <Box>
+                                <Typography variant="subtitle2" color="primary" fontWeight={600} gutterBottom sx={{ mt: 1 }}>
+                                    Body Metrics
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    <Grid size={{ xs: 12, sm: 4 }}>
+                                        <TextField
+                                            fullWidth
+                                            label="Age"
+                                            type="number"
+                                            value={age}
+                                            onChange={(e) => setAge(e.target.value)}
+                                            placeholder="25"
+                                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                        />
+                                    </Grid>
+                                    <Grid size={{ xs: 12, sm: 4 }}>
+                                        <TextField
+                                            fullWidth
+                                            label="Height (cm)"
+                                            type="number"
+                                            value={height}
+                                            onChange={(e) => setHeight(e.target.value)}
+                                            placeholder="170"
+                                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                        />
+                                    </Grid>
+                                    <Grid size={{ xs: 12, sm: 4 }}>
+                                        <TextField
+                                            fullWidth
+                                            label="Weight (kg)"
+                                            type="number"
+                                            value={weight}
+                                            onChange={(e) => setWeight(e.target.value)}
+                                            placeholder="70"
+                                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Box>
                         </Stack>
                     </Box>
                 );

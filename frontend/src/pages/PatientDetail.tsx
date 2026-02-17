@@ -192,8 +192,12 @@ const PatientDetail: React.FC = () => {
                     >
                         {patient.username.charAt(0).toUpperCase()}
                     </Avatar>
-                    <Box flex={1}>
-                        <Typography variant="h4" fontWeight="bold">
+                    <Box flex={1} sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
+                        <Typography
+                            variant="h4"
+                            fontWeight="bold"
+                            sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}
+                        >
                             {patient.username}
                         </Typography>
                         <Typography variant="body1" color="text.secondary">
@@ -207,11 +211,12 @@ const PatientDetail: React.FC = () => {
                             )}
                         </Box>
                     </Box>
-                    <Box display="flex" gap={2}>
+                    <Box display="flex" gap={2} sx={{ width: { xs: '100%', sm: 'auto' } }}>
                         <Button
                             variant="outlined"
                             startIcon={<Note />}
                             onClick={() => setNoteDialog(true)}
+                            fullWidth={true}
                         >
                             Add Note
                         </Button>
@@ -220,6 +225,7 @@ const PatientDetail: React.FC = () => {
                             startIcon={<Add />}
                             onClick={() => setMealPlanDialog(true)}
                             size="large"
+                            fullWidth={true}
                         >
                             Create Meal Plan
                         </Button>
@@ -303,7 +309,13 @@ const PatientDetail: React.FC = () => {
 
             {/* Tabs */}
             <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-                <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)}>
+                <Tabs
+                    value={tabValue}
+                    onChange={(_, newValue) => setTabValue(newValue)}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    allowScrollButtonsMobile
+                >
                     <Tab icon={<Restaurant />} label="Meal Plans" iconPosition="start" />
                     <Tab icon={<TrendingUp />} label="Progress" iconPosition="start" />
                     <Tab icon={<LocalDining />} label="Food Logs" iconPosition="start" />

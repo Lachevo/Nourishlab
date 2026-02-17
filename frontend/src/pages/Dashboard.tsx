@@ -15,6 +15,7 @@ import {
     alpha,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import SocialFeed from '../components/SocialFeed';
 import { Line } from 'react-chartjs-2';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -46,8 +47,8 @@ ChartJS.register(
 );
 
 const Dashboard: React.FC = () => {
+    const { user } = useAuth();
     const navigate = useNavigate();
-    const [user, setUser] = useState<User | null>(null);
     const [_latestMealPlan, setLatestMealPlan] = useState<MealPlan | null>(null);
     const [weightHistory, setWeightHistory] = useState<any[]>([]);
     const [recentLogs, setRecentLogs] = useState<FoodLog[]>([]);
@@ -57,15 +58,12 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [profileRes, mealPlansRes, historyRes, logsRes, msgsRes] = await Promise.all([
-                    api.get('/profile/'),
+                const [mealPlansRes, historyRes, logsRes, msgsRes] = await Promise.all([
                     api.get('/meal-plans/?limit=1'),
                     api.get('/weight-history/'),
                     api.get('/food-logs/?limit=3'),
                     api.get('/messages/?limit=3')
                 ]);
-
-                setUser(profileRes.data);
 
                 const plans = Array.isArray(mealPlansRes.data) ? mealPlansRes.data : mealPlansRes.data.results;
                 if (plans && plans.length > 0) {

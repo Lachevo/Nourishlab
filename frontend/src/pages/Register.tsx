@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import {
@@ -25,20 +25,29 @@ const Register: React.FC = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
     const theme = useTheme();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/');
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleGoogleSuccess = async (credentialResponse: any) => {
         setLoading(true);
         setError('');
         try {
             const response = await api.post('/auth/google/', {
+                id_token: credentialResponse.credential,
                 access_token: credentialResponse.credential,
             });
-            login(response.data.access, response.data.refresh);
+            await login(response.data.access, response.data.refresh, response.data.user);
             navigate('/');
         } catch (err: any) {
-            setError('Google sign-in failed. Please try again.');
+            console.error('Google Auth Error:', err.response?.data || err.message);
+            const detail = err.response?.data?.detail || err.response?.data?.non_field_errors?.[0] || 'Google sign-in failed. Please try again.';
+            setError(detail);
         } finally {
             setLoading(false);
         }
@@ -71,7 +80,7 @@ const Register: React.FC = () => {
             await api.post('/auth/register/', { username, email, password });
             // Auto-login after successful registration
             const loginResponse = await api.post('/auth/login/', { username, password });
-            login(loginResponse.data.access, loginResponse.data.refresh);
+            await login(loginResponse.data.access, loginResponse.data.refresh, loginResponse.data.user);
             // Redirect to profile completion
             navigate('/complete-profile');
         } catch (err: any) {

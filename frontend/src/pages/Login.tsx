@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
@@ -22,8 +22,14 @@ const Login: React.FC = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/');
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,7 +38,7 @@ const Login: React.FC = () => {
 
         try {
             const response = await api.post('/auth/login/', { username, password });
-            login(response.data.access, response.data.refresh);
+            await login(response.data.access, response.data.refresh, response.data.user);
             navigate('/');
         } catch (err: any) {
             setError('Invalid username or password');
@@ -46,12 +52,15 @@ const Login: React.FC = () => {
         setError('');
         try {
             const response = await api.post('/auth/google/', {
+                id_token: credentialResponse.credential,
                 access_token: credentialResponse.credential,
             });
-            login(response.data.access, response.data.refresh);
+            await login(response.data.access, response.data.refresh, response.data.user);
             navigate('/');
         } catch (err: any) {
-            setError('Google sign-in failed. Please try again.');
+            console.error('Google Auth Error:', err.response?.data || err.message);
+            const detail = err.response?.data?.detail || err.response?.data?.non_field_errors?.[0] || 'Google sign-in failed. Please try again.';
+            setError(detail);
         } finally {
             setLoading(false);
         }

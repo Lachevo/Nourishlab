@@ -79,7 +79,14 @@ const NutritionistDashboard: React.FC = () => {
         <Container maxWidth="xl" sx={{ py: 4 }}>
             {/* Header */}
             <Box mb={4}>
-                <Typography variant="h3" fontWeight="bold" gutterBottom>
+                <Typography
+                    variant="h4"
+                    fontWeight="bold"
+                    gutterBottom
+                    sx={{
+                        fontSize: { xs: '1.75rem', sm: '2.125rem', md: '3rem' }
+                    }}
+                >
                     Client Management Dashboard
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
@@ -95,7 +102,7 @@ const NutritionistDashboard: React.FC = () => {
 
             {/* Stats Cards */}
             {stats && (
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
                     <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <Card sx={{
                             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -172,7 +179,7 @@ const NutritionistDashboard: React.FC = () => {
             )}
 
             {/* Activity and Quick Actions */}
-            <Grid container spacing={3} sx={{ mb: 4 }}>
+            <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
                 <Grid size={{ xs: 12, md: 8 }}>
                     <RecentActivity />
                 </Grid>

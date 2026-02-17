@@ -2,9 +2,10 @@ from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView as SimpleJWTTokenObtainPairView
 from django.contrib.auth.models import User
 from .models import Profile, MealPlan, WeeklyUpdate, Recipe, FoodLog, Message, LabResult
-from .serializers import UserSerializer, ProfileSerializer, MealPlanSerializer, WeeklyUpdateSerializer, RecipeSerializer, FoodLogSerializer, MessageSerializer, LabResultSerializer
+from .serializers import UserSerializer, ProfileSerializer, MealPlanSerializer, WeeklyUpdateSerializer, RecipeSerializer, FoodLogSerializer, MessageSerializer, LabResultSerializer, CustomTokenObtainPairSerializer
 from .social_views import GoogleLogin
 from django.db.models import F
 
@@ -13,6 +14,9 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
     authentication_classes = []
+
+class CustomTokenObtainPairView(SimpleJWTTokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 class ProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -25,11 +29,27 @@ class ProfileView(APIView):
     def put(self, request):
         user = request.user
         profile = user.profile
-        serializer = ProfileSerializer(profile, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Split data into User and Profile fields
+        user_fields = ['username', 'first_name', 'last_name']
+        user_data = {k: v for k, v in request.data.items() if k in user_fields}
+        profile_data = {k: v for k, v in request.data.items() if k not in user_fields}
+        
+        # Update User
+        if user_data:
+            user_serializer = UserSerializer(user, data=user_data, partial=True)
+            if user_serializer.is_valid():
+                user_serializer.save()
+            else:
+                return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Update Profile
+        profile_serializer = ProfileSerializer(profile, data=profile_data, partial=True)
+        if profile_serializer.is_valid():
+            profile_serializer.save()
+            # Return full updated user data
+            return Response(UserSerializer(user).data)
+        return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def post(self, request):
         """Create or update profile - used during onboarding"""

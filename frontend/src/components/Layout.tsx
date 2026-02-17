@@ -298,7 +298,13 @@ const Layout: React.FC = () => {
             </Box>
             <Box
                 component="main"
-                sx={{ flexGrow: 1, p: { xs: 2, sm: 4 }, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+                sx={{
+                    flexGrow: 1,
+                    p: { xs: 2, sm: 4 },
+                    width: { sm: `calc(100% - ${drawerWidth}px)` },
+                    maxWidth: '100%',
+                    overflowX: 'hidden'
+                }}
             >
                 <Toolbar />
                 <Outlet />

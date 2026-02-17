@@ -1,51 +1,12 @@
-import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { CircularProgress, Box } from '@mui/material';
-import api from '../services/api';
 
 const ProtectedRoute: React.FC = () => {
-    const { isAuthenticated, loading } = useAuth();
-    const [isApproved, setIsApproved] = useState<boolean | null>(null);
-    const [checkingApproval, setCheckingApproval] = useState(true);
+    const { isAuthenticated, user, loading } = useAuth();
     const location = useLocation();
 
-    useEffect(() => {
-        let isMounted = true;
-
-        const checkStatus = async () => {
-            if (isAuthenticated) {
-                try {
-                    const response = await api.get('/profile/');
-                    if (isMounted) {
-                        setIsApproved(response.data.profile?.is_approved || false);
-                    }
-                } catch (error) {
-                    console.error('Failed verification', error);
-                    if (isMounted) {
-                        setIsApproved(false);
-                    }
-                }
-            }
-            if (isMounted) {
-                setCheckingApproval(false);
-            }
-        };
-
-        if (!loading) {
-            if (isAuthenticated) {
-                checkStatus();
-            } else {
-                if (isMounted) {
-                    setCheckingApproval(false);
-                }
-            }
-        }
-
-        return () => { isMounted = false; };
-    }, [isAuthenticated, loading]);
-
-    if (loading || checkingApproval) {
+    if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
                 <CircularProgress />
@@ -57,18 +18,37 @@ const ProtectedRoute: React.FC = () => {
         return <Navigate to="/login" replace />;
     }
 
-    // Allow access to complete-profile page regardless of approval status
+    const isStaff = user?.is_staff || false;
+    const profile = user?.profile;
+    const isApproved = profile?.is_approved || false;
+
+    // Profile is complete if age is set (required in the form)
+    const isProfileComplete = !!profile && profile.age !== null && profile.age !== undefined;
+
+    // Staff/Nutritionists skip the client onboarding/approval flow
+    if (isStaff) {
+        return <Outlet />;
+    }
+
+    // Client flow:
+    // 1. Allow access to complete-profile page
     if (location.pathname === '/complete-profile') {
         return <Outlet />;
     }
 
-    // Redirect to pending-approval if not approved (and not on complete-profile)
-    if (isApproved === false && location.pathname !== '/pending-approval') {
+    // 2. Redirect to complete-profile if profile is incomplete
+    if (!isProfileComplete) {
+        return <Navigate to="/complete-profile" replace />;
+    }
+
+    // 3. Redirect to pending-approval if not approved
+    if (!isApproved && location.pathname !== '/pending-approval') {
         return <Navigate to="/pending-approval" replace />;
     }
 
-    // Prevent accessing pending-approval if already approved
-    if (isApproved === true && location.pathname === '/pending-approval') {
+    // 4. Prevent accessing pending-approval or complete-profile if all OK
+    if (isApproved && isProfileComplete &&
+        (location.pathname === '/pending-approval' || location.pathname === '/complete-profile')) {
         return <Navigate to="/" replace />;
     }
 
