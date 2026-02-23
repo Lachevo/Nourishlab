@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Calendar, Phone } from 'lucide-react';
+import { ArrowRight, Phone } from 'lucide-react';
 import { getAppLink } from '../config';
 
 const FooterCTA: React.FC = () => {
