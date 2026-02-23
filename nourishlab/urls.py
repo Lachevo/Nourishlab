@@ -42,7 +42,7 @@ if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Catch-all for SPA (Must be last)
+# Serve index.html for any route not starting with /api, /admin, /static, or /media
 urlpatterns += [
-    path('', TemplateView.as_view(template_name='index.html'), name='index'),
-    path('<path:path>', TemplateView.as_view(template_name='index.html')),
+    re_path(r'^(?!api|admin|static|media).*$', TemplateView.as_view(template_name='index.html'), name='index'),
 ]

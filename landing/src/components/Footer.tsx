@@ -1,4 +1,5 @@
 import React from 'react';
+import { getAppLink } from '../config';
 
 const Footer: React.FC = () => {
   return (
@@ -26,15 +27,15 @@ const Footer: React.FC = () => {
           <div className="footer-links">
             <div className="link-column">
               <h4>Platform</h4>
-              <a href="#">How it Works</a>
-              <a href="#">Features</a>
-              <a href="#">Pricing</a>
+              <a href="#how-it-works">How it Works</a>
+              <a href="#portal-preview">Features</a>
+              <a href="#pricing">Pricing</a>
             </div>
             <div className="link-column">
               <h4>Company</h4>
-              <a href="#">About Us</a>
-              <a href="#">Careers</a>
-              <a href="#">Contact</a>
+              <a href="#about">About Us</a>
+              <a href={getAppLink('/login')}>Log In</a>
+              <a href="#contact">Contact</a>
             </div>
             <div className="link-column">
               <h4>Legal</h4>

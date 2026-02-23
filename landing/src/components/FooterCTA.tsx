@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Calendar } from 'lucide-react';
+import { ArrowRight, Calendar, Phone } from 'lucide-react';
+import { getAppLink } from '../config';
 
 const FooterCTA: React.FC = () => {
   return (
@@ -18,11 +19,11 @@ const FooterCTA: React.FC = () => {
             <p>Join hundreds of happy clients – create your account in under 2 minutes.</p>
 
             <div className="cta-actions">
-              <a href="http://localhost:5173/register" className="btn btn-primary btn-lg">
-                Get Started Free <ArrowRight size={20} style={{ marginLeft: '8px' }} />
+              <a href={getAppLink('/register')} className="btn btn-primary btn-lg">
+                Get Started <ArrowRight size={20} style={{ marginLeft: '8px' }} />
               </a>
-              <a href="#consultation" className="btn btn-outline-white btn-lg">
-                <Calendar size={20} style={{ marginRight: '8px' }} /> Book Free Consultation
+              <a href="#contact" className="btn btn-outline-white btn-lg">
+                <Phone size={20} style={{ marginRight: '8px' }} /> Contact Us
               </a>
             </div>
           </div>

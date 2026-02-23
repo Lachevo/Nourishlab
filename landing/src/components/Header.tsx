@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getAppLink } from '../config';
 
 const Header: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -40,8 +41,8 @@ const Header: React.FC = () => {
         </nav>
 
         <div className="auth-buttons">
-          <a href="http://localhost:5173/login" className="nav-link auth-link">Log In</a>
-          <a href="http://localhost:5173/register" className="btn btn-primary btn-sm">Sign Up</a>
+          <a href={getAppLink('/login')} className="nav-link auth-link">Log In</a>
+          <a href={getAppLink('/register')} className="btn btn-primary btn-sm">Sign Up</a>
         </div>
       </div>
       <style>{`

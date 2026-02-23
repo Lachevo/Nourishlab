@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { getAppLink } from '../config';
 import { CreditCard, UserPlus, FileText, MessageSquare, LineChart, Target, ArrowRight } from 'lucide-react';
 
 const steps = [
@@ -88,7 +89,7 @@ const Process: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <a href="http://localhost:5173/register" className="btn btn-primary btn-lg">
+          <a href={getAppLink('/register')} className="btn btn-primary btn-lg">
             Start Your Journey Today <ArrowRight size={20} style={{ marginLeft: '8px' }} />
           </a>
         </motion.div>

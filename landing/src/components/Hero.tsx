@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Calendar } from 'lucide-react';
+import { getAppLink } from '../config';
 
 const Hero: React.FC = () => {
   return (
@@ -41,11 +42,11 @@ const Hero: React.FC = () => {
             className="hero-actions"
           >
             <div className="hero-cta-group">
-              <a href="http://localhost:5173/register" className="btn btn-primary btn-lg">
+              <a href={getAppLink('/register')} className="btn btn-primary btn-lg">
                 Create Your Free Account & Get Started <ArrowRight size={20} style={{ marginLeft: '8px' }} />
               </a>
-              <a href="#consultation" className="btn btn-outline-white btn-lg">
-                <Calendar size={20} style={{ marginRight: '8px' }} /> Book a Free Discovery Call
+              <a href="#pricing" className="btn btn-outline-white btn-lg">
+                <Calendar size={20} style={{ marginRight: '8px' }} /> Explore Plans & Pricing
               </a>
             </div>
 
