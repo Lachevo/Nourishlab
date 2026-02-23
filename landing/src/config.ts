@@ -6,6 +6,11 @@
  */
 export const APP_URL = import.meta.env.VITE_APP_URL || '';
 
+// Debug log for production connectivity
+if (import.meta.env.PROD) {
+    console.log('🌐 NourishLab Connectivity:', APP_URL ? `Pointing to ${APP_URL}` : 'Relative Routing Active');
+}
+
 /**
  * Helper to get the correct link to the application.
  * @param path The path in the app (e.g., '/login')
