@@ -35,7 +35,7 @@ function App() {
         <div className="noise-overlay" />
       </div>
       <Header />
-      <main>
+      <main style={{ paddingTop: '80px' }}>
         <Hero />
         <Process />
         <Benefits />
