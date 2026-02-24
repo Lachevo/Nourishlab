@@ -26,6 +26,17 @@ else
     echo "Skipping frontend build (npm not found or frontend directory missing)"
 fi
 
+# --- Landing build ---
+if [ -d "landing" ] && command -v npm >/dev/null 2>&1; then
+    echo "Building landing page..."
+    cd landing
+    npm install
+    npm run build
+    cd ..
+else
+    echo "Skipping landing build (npm not found or landing directory missing)"
+fi
+
 # --- Django management ---
 echo "Collecting static files..."
 $PYTHON manage.py collectstatic --no-input
