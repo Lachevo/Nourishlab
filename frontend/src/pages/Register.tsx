@@ -236,6 +236,12 @@ const Register: React.FC = () => {
                                     </Link>
                                 </Typography>
                             </Box>
+
+                            <Box textAlign="center" sx={{ mt: 3 }}>
+                                <a href="http://localhost:3000" style={{ color: theme.palette.text.secondary, textDecoration: 'none', fontSize: '0.875rem' }}>
+                                    &larr; Back to Home
+                                </a>
+                            </Box>
                         </Box>
                     </Paper>
                 </Box>
