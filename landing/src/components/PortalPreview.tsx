@@ -6,7 +6,7 @@ const features = [
   {
     icon: <Layout size={20} />,
     title: 'Dashboard Overview',
-    img: 'https://images.unsplash.com/photo-1551288049-bbdac8a28a1e?q=80&w=800&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1542744173-05336fcc7ad4?q=80&w=802&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     caption: 'Everything you need at a glance.'
   },
   {
@@ -24,7 +24,7 @@ const features = [
   {
     icon: <MessageSquareMore size={20} />,
     title: 'Direct Chat',
-    img: 'https://images.unsplash.com/photo-1576091160550-217359f4ecf8?q=80&w=800&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop',
     caption: 'Expert advice, just a message away.'
   }
 ];

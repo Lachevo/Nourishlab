@@ -24,7 +24,7 @@ const Coaches: React.FC = () => {
             </div>
             <div className="coaches-images">
                <div className="coaches-image-wrapper image-left">
-                  <img src="https://images.unsplash.com/photo-1594824436998-ddedfaccefa2?q=80&w=800&auto=format&fit=crop" alt="Wellness Coach 1" />
+                  <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800&auto=format&fit=crop" alt="Wellness Coach 1" />
                </div>
                <div className="coaches-image-wrapper image-right">
                   <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop" alt="Wellness Coach 2" />

@@ -5,6 +5,11 @@ import { CreditCard, UserPlus, FileText, MessageSquare, LineChart, Target, Arrow
 
 const steps = [
   {
+    icon: <UserPlus size={32} />,
+    title: 'Sign Up & Create Your Account',
+    description: 'Quick profile setup: share your goals, preferences, allergies, and lifestyle in minutes.'
+  },
+  {
     icon: <CreditCard size={32} />,
     title: 'Contact & Secure Payment',
     description: (
@@ -13,11 +18,6 @@ const steps = [
         Send your receipt via Telegram (<a href="https://t.me/NourishLabSupport" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)', fontWeight: '600', textDecoration: 'underline' }}>@NourishLabSupport</a>) for verification.
       </>
     )
-  },
-  {
-    icon: <UserPlus size={32} />,
-    title: 'Sign Up & Create Your Account',
-    description: 'Quick profile setup: share your goals, preferences, allergies, and lifestyle in minutes.'
   },
   {
     icon: <FileText size={32} />,
