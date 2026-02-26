@@ -8,9 +8,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Determine current domain (DO NOT include https:// here for Site model)
-        render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-        domain = render_host if render_host else "localhost:5174"
-        name = "NourishLab (Prod)" if render_host else "NourishLab (Local)"
+        domain = os.environ.get('DOMAIN')
+        if not domain:
+            domain = os.environ.get('RENDER_EXTERNAL_HOSTNAME') or "localhost:5174"
+        
+        name = "NourishLab (Prod)" if domain != "localhost:5174" else "NourishLab (Local)"
 
         self.stdout.write(f"DEBUG: Setting up Site with domain: {domain}")
 
