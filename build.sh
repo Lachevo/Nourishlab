@@ -3,12 +3,12 @@
 set -o errexit
 
 # Define python and pip commands (favor virtualenv if it exists)
-if [ -d "env" ]; then
-    PYTHON="./env/bin/python"
-    PIP="./env/bin/pip"
+if [ -d "venv" ]; then
+    PYTHON="./venv/bin/python"
+    PIP="./venv/bin/pip"
 else
-    PYTHON="python"
-    PIP="pip"
+    PYTHON="python3"
+    PIP="pip3"
 fi
 
 # --- Backend build ---
